@@ -1,0 +1,220 @@
+============================================================
+   DERIV SYNTHETIC INDICES - BEST TRADING STRATEGIES
+   Backtested: 1 Year Hourly Data (8,731 candles each)
+   Data Source: Deriv WebSocket API
+   Generated: 2026-02-22
+============================================================
+
+
+================================================================
+1. VOLATILITY 75 INDEX (R_75) - BEST OVERALL
+================================================================
+
+STRATEGY: EMA Crossover (5/21)
+SYMBOL:   R_75
+TIMEFRAME: 1H (Hourly)
+
+ENTRY RULES:
+  BUY:  EMA(5) crosses ABOVE EMA(21)
+  SELL: EMA(5) crosses BELOW EMA(21)
+
+RISK MANAGEMENT:
+  Stop Loss:   3.0 x ATR(14)
+  Take Profit: 1.5 x ATR(14)
+
+  BUY:  SL = Entry - (ATR x 3.0)  |  TP = Entry + (ATR x 1.5)
+  SELL: SL = Entry + (ATR x 3.0)  |  TP = Entry - (ATR x 1.5)
+
+BACKTEST RESULTS:
+  Trades:       248
+  Win Rate:     73.4%
+  Total Return: +89.4%
+  Profit Factor: 1.35
+  R:R Ratio:    0.49
+  Expectancy:   +0.36% per trade
+  Max Drawdown: 20.09%
+
+WHY IT WORKS:
+  - R_75 has strong trending behavior
+  - Fast EMA(5) catches trend early
+  - Wide SL (3x ATR) avoids stop hunting
+  - TP at 1.5x ATR captures trend moves
+
+
+================================================================
+2. VOLATILITY 100 INDEX (R_100) - SAFEST
+================================================================
+
+STRATEGY: RSI Mean Reversion (25/70)
+SYMBOL:   R_100
+TIMEFRAME: 1H (Hourly)
+
+ENTRY RULES:
+  BUY:  RSI(14) drops below 25, then crosses back ABOVE 25
+  SELL: RSI(14) rises above 70, then crosses back BELOW 70
+
+RISK MANAGEMENT:
+  Stop Loss:   3.0 x ATR(14)
+  Take Profit: 1.0 x ATR(14)
+
+  BUY:  SL = Entry - (ATR x 3.0)  |  TP = Entry + (ATR x 1.0)
+  SELL: SL = Entry + (ATR x 3.0)  |  TP = Entry - (ATR x 1.0)
+
+BACKTEST RESULTS:
+  Trades:       101
+  Win Rate:     84.2%  <<<< HIGHEST WIN RATE
+  Total Return: +60.6%
+  Profit Factor: 1.72  <<<< HIGHEST PF
+  R:R Ratio:    0.32
+  Expectancy:   +0.60% per trade
+  Max Drawdown: 11.44% <<<< LOWEST DRAWDOWN
+
+WHY IT WORKS:
+  - R_100 is highly mean-reverting
+  - RSI 25/70 catches oversold/overbought extremes
+  - Wide SL + tight TP = very high win rate (84%)
+  - Only 11.4% max drawdown = safest of all
+
+
+================================================================
+3. VOLATILITY 75 (1s) INDEX [1HZ75V]
+================================================================
+
+STRATEGY: RSI Mean Reversion (25/70)
+SYMBOL:   1HZ75V
+TIMEFRAME: 1H (Hourly)
+
+ENTRY RULES:
+  BUY:  RSI(14) drops below 25, then crosses back ABOVE 25
+  SELL: RSI(14) rises above 70, then crosses back BELOW 70
+
+RISK MANAGEMENT:
+  Stop Loss:   3.0 x ATR(14)
+  Take Profit: 2.5 x ATR(14)
+
+BACKTEST RESULTS:
+  Trades:       100
+  Win Rate:     61.0%
+  Total Return: +45.2%
+  Profit Factor: 1.30
+  R:R Ratio:    0.83
+  Expectancy:   +0.45% per trade
+  Max Drawdown: 34.32%
+
+NOTE: 1s indices are more volatile. Wider TP (2.5x ATR)
+captures bigger moves but higher drawdown risk.
+
+
+================================================================
+4. VOLATILITY 100 (1s) INDEX [1HZ100V]
+================================================================
+
+STRATEGY: RSI Mean Reversion (25/75)
+SYMBOL:   1HZ100V
+TIMEFRAME: 1H (Hourly)
+
+ENTRY RULES:
+  BUY:  RSI(14) drops below 25, then crosses back ABOVE 25
+  SELL: RSI(14) rises above 75, then crosses back BELOW 75
+
+RISK MANAGEMENT:
+  Stop Loss:   3.0 x ATR(14)
+  Take Profit: 2.0 x ATR(14)
+
+BACKTEST RESULTS:
+  Trades:       65
+  Win Rate:     67.7%
+  Total Return: +44.4%
+  Profit Factor: 1.41
+  R:R Ratio:    0.67
+  Expectancy:   +0.68% per trade  <<<< HIGHEST PER TRADE
+  Max Drawdown: 23.22%
+
+ALTERNATIVE (highest total return):
+  MACD SL:3.0 TP:1.5 -> 351 trades, 71.5% WR, +133.5% return
+
+
+================================================================
+5. STEP INDEX (stpRNG) - LOWEST RISK
+================================================================
+
+STRATEGY: RSI Mean Reversion (30/75)
+SYMBOL:   stpRNG
+TIMEFRAME: 1H (Hourly)
+
+ENTRY RULES:
+  BUY:  RSI(14) drops below 30, then crosses back ABOVE 30
+  SELL: RSI(14) rises above 75, then crosses back BELOW 75
+
+RISK MANAGEMENT:
+  Stop Loss:   2.0 x ATR(14)
+  Take Profit: 0.75 x ATR(14)
+
+BACKTEST RESULTS:
+  Trades:       129
+  Win Rate:     83.7%
+  Total Return: +4.7%
+  Profit Factor: 1.97
+  R:R Ratio:    0.38
+  Expectancy:   +0.04% per trade
+  Max Drawdown: 0.61%  <<<< LOWEST DRAWDOWN
+
+NOTE: Step Index moves in tiny fixed steps.
+Very low return but extremely safe. Best for
+learning or micro-lot practice.
+
+
+================================================================
+   QUICK REFERENCE TABLE
+================================================================
+
+Symbol    Strategy      SL    TP    Trades  WR%    Return   PF
+--------------------------------------------------------------
+R_75      EMA(5/21)     3.0   1.5   248    73.4%  +89.4%   1.35
+R_100     RSI(25/70)    3.0   1.0   101    84.2%  +60.6%   1.72
+1HZ75V    RSI(25/70)    3.0   2.5   100    61.0%  +45.2%   1.30
+1HZ100V   RSI(25/75)    3.0   2.0    65    67.7%  +44.4%   1.41
+stpRNG    RSI(30/75)    2.0   0.75  129    83.7%   +4.7%   1.97
+
+
+================================================================
+   HIGH WIN RATE ALTERNATIVES (89%+ WR, 20+ trades)
+================================================================
+
+Symbol    Strategy      SL    TP    Trades  WR%    Return
+---------------------------------------------------------
+R_100     RSI(25/75)    3.0   0.5    64    92.2%  +27.1%
+R_100     RSI(25/70)    3.0   0.5   108    91.7%  +37.8%
+stpRNG    RSI(30/75)    3.0   0.5   125    91.2%   +2.8%
+1HZ100V   RSI(25/75)    3.0   0.5    68    89.7%  +19.5%
+1HZ75V    EMA(5/21)     3.0   0.5   380    89.5%  +61.3%
+
+
+================================================================
+   KEY INSIGHTS
+================================================================
+
+1. RSI DOMINATES - Mean reversion works on all synthetic indices
+2. WIDE SL (3.0x ATR) - Prevents stop hunting on volatile indices
+3. R_100 IS SAFEST - 84% WR, 11% max DD, 1.72 PF
+4. R_75 IS MOST PROFITABLE - 89.4% return, 248 trades
+5. STEP INDEX IS FOR PRACTICE - Very low risk/return
+6. 1s INDICES ARE RISKIER - Higher drawdowns (23-34%)
+
+POSITION SIZING RULE:
+  Risk 1-2% of account per trade
+  NEVER risk more than 5% on synthetic indices
+
+
+================================================================
+   WARNINGS
+================================================================
+
+- Past performance does NOT guarantee future results
+- Synthetic indices are SIMULATED by Deriv
+- Always start with a demo account
+- These results are on 1H timeframe ONLY
+- Use proper risk management at all times
+- Combine with your own analysis
+
+============================================================

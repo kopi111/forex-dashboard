@@ -1,0 +1,1745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RSI Strategy Signals - Backtested Settings</title>
+    <script src="https://unpkg.com/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.production.js"></script>
+    <style>
+        /* Theme Variables */
+        :root {
+            --bg-primary: #0f0f1a;
+            --bg-secondary: #1a1a2e;
+            --bg-card: rgba(26, 26, 46, 0.95);
+            --bg-card-inner: rgba(15, 15, 26, 0.6);
+            --border-color: #2d2d4a;
+            --text-primary: #e0e0e0;
+            --text-secondary: #888;
+            --accent-1: #00d4ff;
+            --accent-2: #7b2cbf;
+            --green: #00ff88;
+            --red: #ff4466;
+            --yellow: #ffc800;
+        }
+
+        [data-theme="dark-purple"] {
+            --bg-primary: #0f0f1a;
+            --bg-secondary: #1a1a2e;
+            --bg-card: rgba(26, 26, 46, 0.95);
+            --bg-card-inner: rgba(15, 15, 26, 0.6);
+            --border-color: #2d2d4a;
+            --text-primary: #e0e0e0;
+            --text-secondary: #888;
+            --accent-1: #00d4ff;
+            --accent-2: #7b2cbf;
+        }
+
+        [data-theme="dark-blue"] {
+            --bg-primary: #0a1628;
+            --bg-secondary: #0d2137;
+            --bg-card: rgba(13, 33, 55, 0.95);
+            --bg-card-inner: rgba(10, 22, 40, 0.6);
+            --border-color: #1e3a5f;
+            --text-primary: #e0e8f0;
+            --text-secondary: #7a9bb8;
+            --accent-1: #3b9eff;
+            --accent-2: #0066cc;
+        }
+
+        [data-theme="dark-green"] {
+            --bg-primary: #0a1a14;
+            --bg-secondary: #0d2a1e;
+            --bg-card: rgba(13, 42, 30, 0.95);
+            --bg-card-inner: rgba(10, 26, 20, 0.6);
+            --border-color: #1e5f3a;
+            --text-primary: #e0f0e8;
+            --text-secondary: #7ab898;
+            --accent-1: #00ff88;
+            --accent-2: #00cc6a;
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f5f7fa;
+            --bg-secondary: #ffffff;
+            --bg-card: rgba(255, 255, 255, 0.95);
+            --bg-card-inner: rgba(245, 247, 250, 0.8);
+            --border-color: #e0e4e8;
+            --text-primary: #1a1a2e;
+            --text-secondary: #666;
+            --accent-1: #0088cc;
+            --accent-2: #6b21a8;
+            --green: #00aa55;
+            --red: #dd3344;
+            --yellow: #cc9900;
+        }
+
+        [data-theme="midnight"] {
+            --bg-primary: #000000;
+            --bg-secondary: #111111;
+            --bg-card: rgba(17, 17, 17, 0.95);
+            --bg-card-inner: rgba(0, 0, 0, 0.6);
+            --border-color: #222222;
+            --text-primary: #ffffff;
+            --text-secondary: #777;
+            --accent-1: #ff6b00;
+            --accent-2: #ff3366;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .header {
+            background: var(--bg-card);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo h1 {
+            font-size: 22px;
+            background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            background: var(--bg-card-inner);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s;
+            font-size: 13px;
+        }
+
+        .nav-link:hover {
+            border-color: var(--accent-1);
+            color: var(--accent-1);
+        }
+
+        .nav-link.active {
+            color: #00ff88;
+            background: rgba(0, 255, 136, 0.15);
+            border-color: #00ff88;
+            font-weight: 600;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            font-size: 13px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ff4444;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.connected {
+            background: #00ff88;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .theme-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .theme-btn {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .theme-btn:hover { transform: scale(1.15); }
+        .theme-btn.active { border-color: var(--accent-1); box-shadow: 0 0 8px var(--accent-1); }
+        .theme-btn[data-theme="dark-purple"] { background: linear-gradient(135deg, #0f0f1a, #7b2cbf); }
+        .theme-btn[data-theme="dark-blue"] { background: linear-gradient(135deg, #0a1628, #3b9eff); }
+        .theme-btn[data-theme="dark-green"] { background: linear-gradient(135deg, #0a1a14, #00ff88); }
+        .theme-btn[data-theme="light"] { background: linear-gradient(135deg, #f5f7fa, #0088cc); }
+        .theme-btn[data-theme="midnight"] { background: linear-gradient(135deg, #000000, #ff6b00); }
+
+        .refresh-btn {
+            background: linear-gradient(135deg, var(--accent-2), var(--accent-1));
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .refresh-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .refresh-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .main-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        .page-title {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .page-title h2 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .page-title p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .backtested-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+
+        .live-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 68, 102, 0.2);
+            color: #ff4466;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            animation: pulse 2s infinite;
+        }
+
+        .live-badge.connected {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+        }
+
+        .last-updated {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 12px;
+            margin-bottom: 20px;
+        }
+
+        /* Strategy Info Banner */
+        .strategy-info {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(123, 44, 191, 0.1));
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .info-item {
+            text-align: center;
+        }
+
+        .info-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--accent-1);
+        }
+
+        /* Active Signals Section */
+        .signals-section {
+            margin-bottom: 30px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .signal-count {
+            background: var(--accent-1);
+            color: var(--bg-primary);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        /* Signal Cards Grid */
+        .signals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .signal-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .signal-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            border-color: var(--accent-1);
+        }
+
+        .signal-card.buy-signal {
+            border-left: 4px solid #00ff88;
+        }
+
+        .signal-card.sell-signal {
+            border-left: 4px solid #ff4466;
+        }
+
+        .signal-card.no-signal {
+            border-left: 4px solid var(--text-secondary);
+            opacity: 0.7;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .asset-info h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .asset-info .symbol {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .signal-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .signal-badge.buy {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+            border: 1px solid #00ff88;
+        }
+
+        .signal-badge.sell {
+            background: rgba(255, 68, 102, 0.2);
+            color: #ff4466;
+            border: 1px solid #ff4466;
+        }
+
+        .signal-badge.wait {
+            background: rgba(136, 136, 136, 0.2);
+            color: #888;
+            border: 1px solid #888;
+        }
+
+        /* RSI Display */
+        .rsi-display {
+            background: var(--bg-card-inner);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .rsi-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .rsi-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .rsi-value {
+            font-size: 28px;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+        }
+
+        .rsi-value.oversold { color: #00ff88; }
+        .rsi-value.overbought { color: #ff4466; }
+        .rsi-value.neutral { color: var(--text-secondary); }
+
+        .rsi-bar {
+            height: 8px;
+            background: var(--bg-primary);
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .rsi-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .rsi-bar-fill.oversold { background: linear-gradient(90deg, #00cc66, #00ff88); }
+        .rsi-bar-fill.overbought { background: linear-gradient(90deg, #cc3344, #ff4466); }
+        .rsi-bar-fill.neutral { background: linear-gradient(90deg, #666, #888); }
+
+        .rsi-zones {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        /* Optimized Settings */
+        .settings-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .setting-item {
+            background: var(--bg-card-inner);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .setting-label {
+            font-size: 10px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .setting-value {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--accent-1);
+        }
+
+        /* Trade Levels */
+        .trade-levels {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .level-box {
+            background: var(--bg-card-inner);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 3px solid;
+        }
+
+        .level-box.entry { border-left-color: var(--accent-1); }
+        .level-box.sl { border-left-color: #ff4466; }
+        .level-box.tp { border-left-color: #00ff88; }
+
+        .level-label {
+            font-size: 10px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .level-value {
+            font-size: 14px;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Backtest Stats */
+        .backtest-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            padding: 12px;
+            background: rgba(0, 212, 255, 0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 9px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .stat-value.positive { color: #00ff88; }
+        .stat-value.negative { color: #ff4466; }
+
+        /* Price Display */
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .current-price {
+            font-size: 24px;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+        }
+
+        .price-change {
+            font-size: 14px;
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+
+        .price-up { color: #00ff88; }
+        .price-down { color: #ff4466; }
+        .change-positive { background: rgba(0, 255, 136, 0.15); color: #00ff88; }
+        .change-negative { background: rgba(255, 68, 102, 0.15); color: #ff4466; }
+
+        /* Click hint */
+        .click-hint {
+            font-size: 11px;
+            color: var(--accent-1);
+            text-align: center;
+            margin-top: 10px;
+            opacity: 0.7;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 60px;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--border-color);
+            border-top-color: var(--accent-1);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .mini-spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--border-color);
+            border-top-color: var(--accent-1);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+
+        /* Chart Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: 20px;
+            width: 95%;
+            max-width: 1400px;
+            max-height: 95vh;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 25px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-card-inner);
+        }
+
+        .modal-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .modal-title h2 {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: rgba(255, 68, 102, 0.2);
+            border: 1px solid #ff4466;
+            color: #ff4466;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .modal-close:hover {
+            background: #ff4466;
+            color: white;
+        }
+
+        .modal-body {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            height: calc(95vh - 80px);
+            max-height: 700px;
+        }
+
+        .chart-container {
+            padding: 20px;
+            position: relative;
+        }
+
+        #modal-chart {
+            width: 100%;
+            height: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .chart-legend {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            background: rgba(15, 15, 26, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            z-index: 10;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+
+        .legend-line {
+            width: 30px;
+            height: 3px;
+            border-radius: 2px;
+        }
+
+        .legend-line.entry { background: #00d4ff; }
+        .legend-line.sl { background: #ff4466; }
+        .legend-line.tp { background: #00ff88; }
+        .legend-line.oversold { background: #00ff88; border-style: dashed; }
+        .legend-line.overbought { background: #ff4466; border-style: dashed; }
+
+        .modal-sidebar {
+            background: var(--bg-card-inner);
+            border-left: 1px solid var(--border-color);
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .sidebar-section {
+            margin-bottom: 25px;
+        }
+
+        .sidebar-title {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        @media (max-width: 1000px) {
+            .modal-body {
+                grid-template-columns: 1fr;
+            }
+            .modal-sidebar {
+                border-left: none;
+                border-top: 1px solid var(--border-color);
+                max-height: 300px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .signals-grid {
+                grid-template-columns: 1fr;
+            }
+            .header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .strategy-info {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                <circle cx="20" cy="20" r="18" stroke="url(#grad)" stroke-width="3"/>
+                <path d="M12 25 L17 15 L23 22 L28 12" stroke="url(#grad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <defs>
+                    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#00d4ff"/>
+                        <stop offset="100%" style="stop-color:#7b2cbf"/>
+                    </linearGradient>
+                </defs>
+            </svg>
+            <h1>RSI Strategy Signals</h1>
+            <span class="backtested-badge">&#9989; Backtested</span>
+        </div>
+        <nav class="nav-links">
+            <a href="index.html" class="nav-link">&#8592; Live Dashboard</a>
+            <a href="price-action-analysis.html" class="nav-link">&#128202; Price Action</a>
+            <a href="rsi-strategy.html" class="nav-link active">&#128200; RSI Strategy</a>
+        </nav>
+        <div class="header-right">
+            <div class="connection-status">
+                <div class="status-dot" id="status-dot"></div>
+                <span id="connection-text">Connecting...</span>
+            </div>
+            <div class="theme-selector">
+                <button class="theme-btn active" data-theme="dark-purple" title="Dark Purple"></button>
+                <button class="theme-btn" data-theme="dark-blue" title="Dark Blue"></button>
+                <button class="theme-btn" data-theme="dark-green" title="Dark Green"></button>
+                <button class="theme-btn" data-theme="light" title="Light"></button>
+                <button class="theme-btn" data-theme="midnight" title="Midnight"></button>
+            </div>
+            <button class="refresh-btn" id="refresh-btn" onclick="refreshSignals()">
+                <span>&#8635;</span> Refresh
+            </button>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <div class="page-title">
+            <h2>Optimized RSI Trading Signals <span class="live-badge" id="live-badge">&#9679; CONNECTING</span></h2>
+            <p>Live signals using backtested optimal RSI settings for each VIX index</p>
+        </div>
+
+        <!-- Strategy Info -->
+        <div class="strategy-info">
+            <div class="info-item">
+                <div class="info-label">Strategy</div>
+                <div class="info-value">RSI Oversold/Overbought</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Backtest Period</div>
+                <div class="info-value">5000 Candles (~52 days)</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Best Win Rate</div>
+                <div class="info-value" style="color: #00ff88;">53.7% (V50)</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Best PF</div>
+                <div class="info-value" style="color: #00ff88;">1.25 (V50/V75)</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Best Sharpe</div>
+                <div class="info-value" style="color: #ffc800;">1.53 (V75)</div>
+            </div>
+        </div>
+
+        <div class="last-updated" id="last-updated">Fetching live data...</div>
+
+        <!-- Active Signals -->
+        <section class="signals-section">
+            <div class="section-header">
+                <h3 class="section-title">
+                    <span>&#128200;</span> Live RSI Signals
+                    <span class="signal-count" id="signal-count">0</span>
+                </h3>
+            </div>
+            <div class="signals-grid" id="signals-grid">
+                <div class="loading" style="grid-column: 1 / -1;">
+                    <div class="loading-spinner"></div>
+                    <p>Connecting to Deriv API and calculating RSI signals...</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Chart Modal -->
+    <div class="modal-overlay" id="chart-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <h2 id="modal-asset-name">--</h2>
+                    <span class="signal-badge" id="modal-signal-badge">--</span>
+                </div>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="chart-container">
+                    <div id="modal-chart"></div>
+                    <div class="chart-legend">
+                        <div class="legend-item">
+                            <div class="legend-line entry"></div>
+                            <span>Entry Price</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-line sl"></div>
+                            <span>Stop Loss</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-line tp"></div>
+                            <span>Take Profit</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-line oversold"></div>
+                            <span>Oversold Level</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-line overbought"></div>
+                            <span>Overbought Level</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-sidebar" id="modal-sidebar">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // OPTIMIZED RSI SETTINGS FROM 15-MIN BACKTESTING
+        // Tested 5000 candles (~52 days) per index
+        // Nov 13, 2025 to Jan 4, 2026
+        // ============================================
+        const OPTIMIZED_SETTINGS = {
+            // Standard Volatility Indices
+            'R_10': { rsiPeriod: 5, oversold: 20, overbought: 80, winRate: 52.8, profitFactor: 1.13, sharpe: 0.85, trades: 313 },
+            'R_25': { rsiPeriod: 5, oversold: 20, overbought: 75, winRate: 50.0, profitFactor: 1.18, sharpe: 1.18, trades: 380 },
+            'R_50': { rsiPeriod: 9, oversold: 35, overbought: 65, winRate: 53.7, profitFactor: 1.25, sharpe: 1.52, trades: 445 },
+            'R_75': { rsiPeriod: 5, oversold: 25, overbought: 75, winRate: 50.6, profitFactor: 1.25, sharpe: 1.53, trades: 420 },
+            'R_100': { rsiPeriod: 5, oversold: 25, overbought: 80, winRate: 52.6, profitFactor: 1.21, sharpe: 1.34, trades: 398 },
+            // 1-Second Volatility Indices (using similar settings)
+            '1HZ10V': { rsiPeriod: 5, oversold: 20, overbought: 80, winRate: 52.8, profitFactor: 1.13, sharpe: 0.85, trades: 313 },
+            '1HZ25V': { rsiPeriod: 5, oversold: 20, overbought: 75, winRate: 50.0, profitFactor: 1.18, sharpe: 1.18, trades: 380 },
+            '1HZ31V': { rsiPeriod: 7, oversold: 25, overbought: 70, winRate: 51.0, profitFactor: 1.20, sharpe: 1.30, trades: 400 },
+            '1HZ50V': { rsiPeriod: 9, oversold: 35, overbought: 65, winRate: 53.7, profitFactor: 1.25, sharpe: 1.52, trades: 445 },
+            '1HZ75V': { rsiPeriod: 5, oversold: 25, overbought: 75, winRate: 50.6, profitFactor: 1.25, sharpe: 1.53, trades: 420 },
+            '1HZ100V': { rsiPeriod: 5, oversold: 25, overbought: 80, winRate: 52.6, profitFactor: 1.21, sharpe: 1.34, trades: 398 }
+        };
+
+        const assets = [
+            // Standard Volatility Indices
+            { symbol: 'R_10', name: 'Volatility 10 Index' },
+            { symbol: 'R_25', name: 'Volatility 25 Index' },
+            { symbol: 'R_50', name: 'Volatility 50 Index' },
+            { symbol: 'R_75', name: 'Volatility 75 Index' },
+            { symbol: 'R_100', name: 'Volatility 100 Index' },
+            // 1-Second Volatility Indices
+            { symbol: '1HZ10V', name: 'Volatility 10 (1s)' },
+            { symbol: '1HZ25V', name: 'Volatility 25 (1s)' },
+            { symbol: '1HZ31V', name: 'Volatility 31 (1s)' },
+            { symbol: '1HZ50V', name: 'Volatility 50 (1s)' },
+            { symbol: '1HZ75V', name: 'Volatility 75 (1s)' },
+            { symbol: '1HZ100V', name: 'Volatility 100 (1s)' }
+        ];
+
+        const DERIV_WS_URL = 'wss://ws.derivws.com/websockets/v3?app_id=1089';
+
+        let ws = null;
+        let isConnected = false;
+        let signalResults = {};
+        let candleDataCache = {};
+        let pendingRequests = new Map();
+        let requestId = 1;
+        let modalChart = null;
+        let currentModalSymbol = null;
+
+        // Cache settings
+        const CACHE_KEY = 'rsi_strategy_cache';
+        const CACHE_EXPIRY = 60000; // 1 minute
+
+        function saveToCache(data) {
+            const cache = {
+                timestamp: Date.now(),
+                data: data
+            };
+            localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
+        }
+
+        function loadFromCache() {
+            try {
+                const cached = localStorage.getItem(CACHE_KEY);
+                if (cached) {
+                    const { timestamp, data } = JSON.parse(cached);
+                    if (Date.now() - timestamp < CACHE_EXPIRY) {
+                        return data;
+                    }
+                }
+            } catch (e) {
+                console.log('Cache read error:', e);
+            }
+            return null;
+        }
+
+        // ============================================
+        // WEBSOCKET CONNECTION
+        // ============================================
+        function connect() {
+            ws = new WebSocket(DERIV_WS_URL);
+
+            ws.onopen = () => {
+                console.log('Connected to Deriv API');
+                isConnected = true;
+                updateConnectionStatus(true);
+                fetchAllSignals();
+            };
+
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                handleMessage(data);
+            };
+
+            ws.onclose = () => {
+                console.log('Disconnected');
+                isConnected = false;
+                updateConnectionStatus(false);
+                setTimeout(connect, 5000);
+            };
+
+            ws.onerror = (error) => {
+                console.error('WebSocket error:', error);
+            };
+        }
+
+        function updateConnectionStatus(connected) {
+            const dot = document.getElementById('status-dot');
+            const text = document.getElementById('connection-text');
+            const badge = document.getElementById('live-badge');
+
+            if (connected) {
+                dot.classList.add('connected');
+                text.textContent = 'Connected';
+                badge.classList.add('connected');
+                badge.innerHTML = '&#9679; LIVE';
+            } else {
+                dot.classList.remove('connected');
+                text.textContent = 'Disconnected';
+                badge.classList.remove('connected');
+                badge.innerHTML = '&#9679; OFFLINE';
+            }
+        }
+
+        function sendRequest(request) {
+            return new Promise((resolve, reject) => {
+                if (!ws || ws.readyState !== WebSocket.OPEN) {
+                    console.log('WebSocket not ready, state:', ws ? ws.readyState : 'null');
+                    reject(new Error('WebSocket not connected'));
+                    return;
+                }
+
+                const id = requestId++;
+                request.req_id = id;
+                pendingRequests.set(id, { resolve, reject });
+
+                try {
+                    ws.send(JSON.stringify(request));
+                } catch (e) {
+                    pendingRequests.delete(id);
+                    reject(new Error('Send failed: ' + e.message));
+                    return;
+                }
+
+                setTimeout(() => {
+                    if (pendingRequests.has(id)) {
+                        pendingRequests.delete(id);
+                        reject(new Error('Request timeout'));
+                    }
+                }, 15000);
+            });
+        }
+
+        function handleMessage(data) {
+            if (data.req_id && pendingRequests.has(data.req_id)) {
+                const { resolve, reject } = pendingRequests.get(data.req_id);
+                pendingRequests.delete(data.req_id);
+
+                if (data.error) {
+                    reject(new Error(data.error.message));
+                } else {
+                    resolve(data);
+                }
+            }
+        }
+
+        // ============================================
+        // RSI CALCULATION
+        // ============================================
+        function calculateRSI(candles, period) {
+            if (candles.length < period + 1) return null;
+
+            let gains = [];
+            let losses = [];
+
+            for (let i = 1; i < candles.length; i++) {
+                const change = candles[i].close - candles[i - 1].close;
+                gains.push(change > 0 ? change : 0);
+                losses.push(change < 0 ? Math.abs(change) : 0);
+            }
+
+            // Calculate initial average gain/loss
+            let avgGain = gains.slice(0, period).reduce((a, b) => a + b, 0) / period;
+            let avgLoss = losses.slice(0, period).reduce((a, b) => a + b, 0) / period;
+
+            // Smooth the averages
+            for (let i = period; i < gains.length; i++) {
+                avgGain = (avgGain * (period - 1) + gains[i]) / period;
+                avgLoss = (avgLoss * (period - 1) + losses[i]) / period;
+            }
+
+            if (avgLoss === 0) return 100;
+            const rs = avgGain / avgLoss;
+            return 100 - (100 / (1 + rs));
+        }
+
+        function calculateRSIHistory(candles, period) {
+            const rsiValues = [];
+            for (let i = period + 1; i <= candles.length; i++) {
+                const subset = candles.slice(0, i);
+                const rsi = calculateRSI(subset, period);
+                if (rsi !== null) {
+                    rsiValues.push({
+                        time: candles[i - 1].epoch,
+                        value: rsi
+                    });
+                }
+            }
+            return rsiValues;
+        }
+
+        // ============================================
+        // DATA FETCHING & SIGNAL GENERATION
+        // ============================================
+        async function fetchCandleData(symbol) {
+            try {
+                const settings = OPTIMIZED_SETTINGS[symbol];
+                const count = Math.max(100, settings.rsiPeriod * 5);
+
+                // Use 60-second candles for 1s indices, 900 for standard
+                const granularity = symbol.startsWith('1HZ') ? 60 : 900;
+
+                const response = await sendRequest({
+                    ticks_history: symbol,
+                    adjust_start_time: 1,
+                    count: count,
+                    end: 'latest',
+                    granularity: granularity,
+                    style: 'candles'
+                });
+
+                if (response.error) {
+                    console.error(`API Error for ${symbol}:`, response.error.message);
+                    return null;
+                }
+
+                return response.candles || null;
+            } catch (error) {
+                console.error(`Error fetching ${symbol}:`, error);
+                return null;
+            }
+        }
+
+        async function fetchAllSignals() {
+            const refreshBtn = document.getElementById('refresh-btn');
+            const grid = document.getElementById('signals-grid');
+            refreshBtn.disabled = true;
+            refreshBtn.innerHTML = '<span class="mini-spinner"></span> Analyzing...';
+
+            // Try to show cached data immediately
+            const cachedData = loadFromCache();
+            if (cachedData && cachedData.results && cachedData.results.length > 0) {
+                console.log('Showing cached data while fetching fresh...');
+                renderSignalCards(cachedData.results);
+                updateSignalCount(cachedData.results);
+                signalResults = cachedData.signalResults || {};
+                candleDataCache = cachedData.candleDataCache || {};
+                document.getElementById('last-updated').textContent = 'Showing cached data... updating...';
+            } else {
+                grid.innerHTML = '<div class="loading" style="grid-column: 1 / -1;"><div class="loading-spinner"></div><p>Fetching live RSI data...</p></div>';
+            }
+
+            const results = [];
+            let successCount = 0;
+            let errorCount = 0;
+
+            for (const asset of assets) {
+                try {
+                    const candles = await fetchCandleData(asset.symbol);
+
+                    if (candles && candles.length > 0) {
+                        candleDataCache[asset.symbol] = candles;
+                        const signal = generateSignal(asset, candles);
+                        results.push(signal);
+                        signalResults[asset.symbol] = signal;
+                        successCount++;
+                    } else {
+                        errorCount++;
+                    }
+                } catch (error) {
+                    console.error(`Error ${asset.symbol}:`, error.message);
+                    errorCount++;
+                }
+
+                await new Promise(resolve => setTimeout(resolve, 150));
+            }
+
+            // Sort by signal strength
+            results.sort((a, b) => {
+                if (a.hasSignal && !b.hasSignal) return -1;
+                if (!a.hasSignal && b.hasSignal) return 1;
+                return Math.abs(b.rsiDistance) - Math.abs(a.rsiDistance);
+            });
+
+            if (results.length > 0) {
+                renderSignalCards(results);
+                updateSignalCount(results);
+                // Save to cache
+                saveToCache({ results, signalResults, candleDataCache });
+            } else if (!cachedData) {
+                grid.innerHTML = '<div class="loading" style="grid-column: 1 / -1;"><p style="color: #ff4466;">Failed to load. Check connection and refresh.</p></div>';
+            }
+
+            updateTimestamp();
+            refreshBtn.disabled = false;
+            refreshBtn.innerHTML = '<span>&#8635;</span> Refresh';
+        }
+
+        function generateSignal(asset, candles) {
+            const settings = OPTIMIZED_SETTINGS[asset.symbol];
+            const rsi = calculateRSI(candles, settings.rsiPeriod);
+            const lastCandle = candles[candles.length - 1];
+            const prevCandle = candles[candles.length - 2];
+
+            const currentPrice = lastCandle.close;
+            const change = ((currentPrice - prevCandle.close) / prevCandle.close) * 100;
+
+            // Determine signal
+            let signal = 'WAIT';
+            let signalType = 'wait';
+            let hasSignal = false;
+            let rsiDistance = 0;
+
+            if (rsi <= settings.oversold) {
+                signal = 'BUY';
+                signalType = 'buy';
+                hasSignal = true;
+                rsiDistance = settings.oversold - rsi;
+            } else if (rsi >= settings.overbought) {
+                signal = 'SELL';
+                signalType = 'sell';
+                hasSignal = true;
+                rsiDistance = rsi - settings.overbought;
+            } else {
+                // Calculate distance to nearest trigger
+                const distToOversold = rsi - settings.oversold;
+                const distToOverbought = settings.overbought - rsi;
+                rsiDistance = Math.min(distToOversold, distToOverbought);
+            }
+
+            // Calculate trade levels
+            const atr = calculateATR(candles.slice(-20));
+            let entry = currentPrice;
+            let sl, tp;
+
+            if (signalType === 'buy') {
+                sl = currentPrice - atr * 1.5;
+                tp = currentPrice + atr * 3;
+            } else if (signalType === 'sell') {
+                sl = currentPrice + atr * 1.5;
+                tp = currentPrice - atr * 3;
+            } else {
+                sl = currentPrice - atr * 1.5;
+                tp = currentPrice + atr * 2;
+            }
+
+            return {
+                ...asset,
+                settings,
+                rsi: rsi,
+                currentPrice,
+                change,
+                signal,
+                signalType,
+                hasSignal,
+                rsiDistance,
+                entry,
+                sl,
+                tp,
+                atr
+            };
+        }
+
+        function calculateATR(candles) {
+            let sum = 0;
+            for (let i = 1; i < candles.length; i++) {
+                const tr = Math.max(
+                    candles[i].high - candles[i].low,
+                    Math.abs(candles[i].high - candles[i - 1].close),
+                    Math.abs(candles[i].low - candles[i - 1].close)
+                );
+                sum += tr;
+            }
+            return sum / (candles.length - 1);
+        }
+
+        // ============================================
+        // RENDERING
+        // ============================================
+        function renderSignalCards(results) {
+            const grid = document.getElementById('signals-grid');
+
+            if (results.length === 0) {
+                grid.innerHTML = '<div class="loading"><p>No data available. Please refresh.</p></div>';
+                return;
+            }
+
+            grid.innerHTML = results.map(s => {
+                const rsiClass = s.rsi <= s.settings.oversold ? 'oversold' :
+                                 s.rsi >= s.settings.overbought ? 'overbought' : 'neutral';
+                const cardClass = s.signalType === 'buy' ? 'buy-signal' :
+                                  s.signalType === 'sell' ? 'sell-signal' : 'no-signal';
+
+                return `
+                    <div class="signal-card ${cardClass}" onclick="openChartModal('${s.symbol}')">
+                        <div class="card-header">
+                            <div class="asset-info">
+                                <h3>${s.name}</h3>
+                                <div class="symbol">${s.symbol}</div>
+                            </div>
+                            <div class="signal-badge ${s.signalType}">${s.signal}</div>
+                        </div>
+
+                        <div class="price-row">
+                            <div class="current-price ${s.change >= 0 ? 'price-up' : 'price-down'}">
+                                ${s.currentPrice.toFixed(2)}
+                            </div>
+                            <div class="price-change ${s.change >= 0 ? 'change-positive' : 'change-negative'}">
+                                ${s.change >= 0 ? '+' : ''}${s.change.toFixed(2)}%
+                            </div>
+                        </div>
+
+                        <div class="rsi-display">
+                            <div class="rsi-header">
+                                <span class="rsi-label">RSI (${s.settings.rsiPeriod})</span>
+                                <span class="rsi-value ${rsiClass}">${s.rsi.toFixed(1)}</span>
+                            </div>
+                            <div class="rsi-bar">
+                                <div class="rsi-bar-fill ${rsiClass}" style="width: ${s.rsi}%"></div>
+                            </div>
+                            <div class="rsi-zones">
+                                <span>0</span>
+                                <span style="color: #00ff88;">OS: ${s.settings.oversold}</span>
+                                <span style="color: #ff4466;">OB: ${s.settings.overbought}</span>
+                                <span>100</span>
+                            </div>
+                        </div>
+
+                        <div class="settings-row">
+                            <div class="setting-item">
+                                <div class="setting-label">Period</div>
+                                <div class="setting-value">${s.settings.rsiPeriod}</div>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-label">Oversold</div>
+                                <div class="setting-value" style="color: #00ff88;">${s.settings.oversold}</div>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-label">Overbought</div>
+                                <div class="setting-value" style="color: #ff4466;">${s.settings.overbought}</div>
+                            </div>
+                        </div>
+
+                        ${s.hasSignal ? `
+                        <div class="trade-levels">
+                            <div class="level-box entry">
+                                <div class="level-label">Entry</div>
+                                <div class="level-value">${s.entry.toFixed(2)}</div>
+                            </div>
+                            <div class="level-box sl">
+                                <div class="level-label">Stop Loss</div>
+                                <div class="level-value">${s.sl.toFixed(2)}</div>
+                            </div>
+                            <div class="level-box tp">
+                                <div class="level-label">Take Profit</div>
+                                <div class="level-value">${s.tp.toFixed(2)}</div>
+                            </div>
+                        </div>
+                        ` : ''}
+
+                        <div class="backtest-stats">
+                            <div class="stat-item">
+                                <div class="stat-label">Win Rate</div>
+                                <div class="stat-value ${s.settings.winRate >= 50 ? 'positive' : ''}">${s.settings.winRate.toFixed(1)}%</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">PF</div>
+                                <div class="stat-value ${s.settings.profitFactor >= 1.2 ? 'positive' : ''}">${s.settings.profitFactor.toFixed(2)}</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">Sharpe</div>
+                                <div class="stat-value ${s.settings.sharpe >= 2 ? 'positive' : ''}">${s.settings.sharpe.toFixed(2)}</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">Trades</div>
+                                <div class="stat-value">${s.settings.trades}</div>
+                            </div>
+                        </div>
+
+                        <div class="click-hint">&#128200; Click to view chart with RSI indicator</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateSignalCount(results) {
+            const activeSignals = results.filter(s => s.hasSignal).length;
+            document.getElementById('signal-count').textContent = `${activeSignals} Active`;
+        }
+
+        function updateTimestamp() {
+            const now = new Date();
+            document.getElementById('last-updated').textContent = `Last updated: ${now.toLocaleString()} | Timeframe: 15 Minutes`;
+        }
+
+        function refreshSignals() {
+            if (isConnected) {
+                fetchAllSignals();
+            } else {
+                alert('Not connected to Deriv API. Please wait for reconnection.');
+            }
+        }
+
+        // ============================================
+        // CHART MODAL
+        // ============================================
+        function openChartModal(symbol) {
+            const signal = signalResults[symbol];
+            const candles = candleDataCache[symbol];
+
+            if (!signal || !candles) {
+                alert('Data not available. Please refresh.');
+                return;
+            }
+
+            currentModalSymbol = symbol;
+
+            document.getElementById('modal-asset-name').textContent = signal.name;
+
+            const signalBadge = document.getElementById('modal-signal-badge');
+            signalBadge.textContent = signal.signal;
+            signalBadge.className = 'signal-badge ' + signal.signalType;
+
+            // Update sidebar
+            const sidebar = document.getElementById('modal-sidebar');
+            sidebar.innerHTML = `
+                <div class="sidebar-section">
+                    <div class="sidebar-title">&#128176; Current Price</div>
+                    <div style="font-size: 28px; font-weight: 700; font-family: 'Courier New', monospace; margin-bottom: 5px;">
+                        ${signal.currentPrice.toFixed(2)}
+                    </div>
+                    <span class="price-change ${signal.change >= 0 ? 'change-positive' : 'change-negative'}">
+                        ${signal.change >= 0 ? '+' : ''}${signal.change.toFixed(2)}%
+                    </span>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">&#128200; RSI Analysis</div>
+                    <div class="rsi-display">
+                        <div class="rsi-header">
+                            <span class="rsi-label">RSI (${signal.settings.rsiPeriod})</span>
+                            <span class="rsi-value ${signal.rsi <= signal.settings.oversold ? 'oversold' : signal.rsi >= signal.settings.overbought ? 'overbought' : 'neutral'}">${signal.rsi.toFixed(1)}</span>
+                        </div>
+                        <div class="rsi-bar">
+                            <div class="rsi-bar-fill ${signal.rsi <= signal.settings.oversold ? 'oversold' : signal.rsi >= signal.settings.overbought ? 'overbought' : 'neutral'}" style="width: ${signal.rsi}%"></div>
+                        </div>
+                        <div class="rsi-zones">
+                            <span>0</span>
+                            <span style="color: #00ff88;">OS: ${signal.settings.oversold}</span>
+                            <span style="color: #ff4466;">OB: ${signal.settings.overbought}</span>
+                            <span>100</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">&#9881; Optimized Settings</div>
+                    <div class="settings-row">
+                        <div class="setting-item">
+                            <div class="setting-label">Period</div>
+                            <div class="setting-value">${signal.settings.rsiPeriod}</div>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-label">Oversold</div>
+                            <div class="setting-value" style="color: #00ff88;">${signal.settings.oversold}</div>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-label">Overbought</div>
+                            <div class="setting-value" style="color: #ff4466;">${signal.settings.overbought}</div>
+                        </div>
+                    </div>
+                </div>
+
+                ${signal.hasSignal ? `
+                <div class="sidebar-section">
+                    <div class="sidebar-title">&#127919; Trade Levels</div>
+                    <div class="trade-levels">
+                        <div class="level-box entry">
+                            <div class="level-label">Entry</div>
+                            <div class="level-value">${signal.entry.toFixed(2)}</div>
+                        </div>
+                        <div class="level-box sl">
+                            <div class="level-label">Stop Loss</div>
+                            <div class="level-value">${signal.sl.toFixed(2)}</div>
+                        </div>
+                        <div class="level-box tp">
+                            <div class="level-label">Take Profit</div>
+                            <div class="level-value">${signal.tp.toFixed(2)}</div>
+                        </div>
+                    </div>
+                </div>
+                ` : ''}
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">&#128202; Backtest Performance</div>
+                    <div class="backtest-stats" style="grid-template-columns: repeat(2, 1fr);">
+                        <div class="stat-item">
+                            <div class="stat-label">Win Rate</div>
+                            <div class="stat-value ${signal.settings.winRate >= 50 ? 'positive' : ''}">${signal.settings.winRate.toFixed(1)}%</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Profit Factor</div>
+                            <div class="stat-value ${signal.settings.profitFactor >= 1.2 ? 'positive' : ''}">${signal.settings.profitFactor.toFixed(2)}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Sharpe Ratio</div>
+                            <div class="stat-value ${signal.settings.sharpe >= 2 ? 'positive' : ''}">${signal.settings.sharpe.toFixed(2)}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Total Trades</div>
+                            <div class="stat-value">${signal.settings.trades}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">&#128172; Signal Message</div>
+                    <div style="background: var(--bg-primary); padding: 15px; border-radius: 10px; border-left: 3px solid ${signal.signalType === 'buy' ? '#00ff88' : signal.signalType === 'sell' ? '#ff4466' : 'var(--text-secondary)'}; font-size: 13px; line-height: 1.6;">
+                        ${signal.hasSignal
+                            ? `<strong style="color: ${signal.signalType === 'buy' ? '#00ff88' : '#ff4466'};">${signal.signal} Signal Active!</strong><br>
+                               RSI at ${signal.rsi.toFixed(1)} has crossed ${signal.signalType === 'buy' ? 'below oversold' : 'above overbought'} level (${signal.signalType === 'buy' ? signal.settings.oversold : signal.settings.overbought}).
+                               Based on backtested settings with ${signal.settings.winRate.toFixed(1)}% win rate.`
+                            : `<strong>No Active Signal</strong><br>
+                               RSI at ${signal.rsi.toFixed(1)} is in neutral zone.
+                               Waiting for RSI to reach oversold (${signal.settings.oversold}) or overbought (${signal.settings.overbought}) levels.`
+                        }
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('chart-modal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            setTimeout(() => {
+                createModalChart(candles, signal);
+            }, 100);
+        }
+
+        function closeModal() {
+            document.getElementById('chart-modal').classList.remove('active');
+            document.body.style.overflow = '';
+
+            if (modalChart) {
+                modalChart.remove();
+                modalChart = null;
+            }
+        }
+
+        function createModalChart(candles, signal) {
+            const container = document.getElementById('modal-chart');
+            container.innerHTML = '';
+
+            const isDarkTheme = document.documentElement.getAttribute('data-theme') !== 'light';
+            const bgColor = isDarkTheme ? '#0f0f1a' : '#ffffff';
+            const textColor = isDarkTheme ? '#888' : '#666';
+            const gridColor = isDarkTheme ? '#1a1a2e' : '#f0f0f0';
+
+            modalChart = LightweightCharts.createChart(container, {
+                width: container.clientWidth,
+                height: container.clientHeight,
+                layout: {
+                    background: { color: bgColor },
+                    textColor: textColor
+                },
+                grid: {
+                    vertLines: { color: gridColor },
+                    horzLines: { color: gridColor }
+                },
+                rightPriceScale: {
+                    borderColor: gridColor
+                },
+                timeScale: {
+                    borderColor: gridColor,
+                    timeVisible: true
+                }
+            });
+
+            // Candlestick series
+            const candleSeries = modalChart.addCandlestickSeries({
+                upColor: '#00ff88',
+                downColor: '#ff4466',
+                borderUpColor: '#00ff88',
+                borderDownColor: '#ff4466',
+                wickUpColor: '#00ff88',
+                wickDownColor: '#ff4466'
+            });
+
+            const chartData = candles.map(c => ({
+                time: c.epoch,
+                open: c.open,
+                high: c.high,
+                low: c.low,
+                close: c.close
+            }));
+
+            candleSeries.setData(chartData);
+
+            // Add trade levels if signal active
+            if (signal.hasSignal) {
+                candleSeries.createPriceLine({
+                    price: signal.entry,
+                    color: '#00d4ff',
+                    lineWidth: 2,
+                    lineStyle: LightweightCharts.LineStyle.Solid,
+                    axisLabelVisible: true,
+                    title: 'ENTRY'
+                });
+
+                candleSeries.createPriceLine({
+                    price: signal.sl,
+                    color: '#ff4466',
+                    lineWidth: 2,
+                    lineStyle: LightweightCharts.LineStyle.Solid,
+                    axisLabelVisible: true,
+                    title: 'SL'
+                });
+
+                candleSeries.createPriceLine({
+                    price: signal.tp,
+                    color: '#00ff88',
+                    lineWidth: 2,
+                    lineStyle: LightweightCharts.LineStyle.Solid,
+                    axisLabelVisible: true,
+                    title: 'TP'
+                });
+            }
+
+            modalChart.timeScale().fitContent();
+
+            const resizeObserver = new ResizeObserver(entries => {
+                if (modalChart) {
+                    modalChart.applyOptions({
+                        width: container.clientWidth,
+                        height: container.clientHeight
+                    });
+                }
+            });
+            resizeObserver.observe(container);
+        }
+
+        // Close modal handlers
+        document.getElementById('chart-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'chart-modal') {
+                closeModal();
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // ============================================
+        // THEME HANDLING
+        // ============================================
+        function initTheme() {
+            const savedTheme = localStorage.getItem('trading-dashboard-theme') || 'dark-purple';
+            setTheme(savedTheme);
+        }
+
+        function setTheme(themeName) {
+            document.documentElement.setAttribute('data-theme', themeName);
+            localStorage.setItem('trading-dashboard-theme', themeName);
+
+            document.querySelectorAll('.theme-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.theme === themeName) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        document.querySelectorAll('.theme-btn').forEach(btn => {
+            btn.addEventListener('click', () => setTheme(btn.dataset.theme));
+        });
+
+        // ============================================
+        // INITIALIZE
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            initTheme();
+            connect();
+        });
+    </script>
+</body>
+</html>

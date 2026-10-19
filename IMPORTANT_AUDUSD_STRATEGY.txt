@@ -1,0 +1,95 @@
+============================================================
+        AUD/USD BEST STRATEGY - RSI(30/65)
+        Backtested: 5 Years Daily (2021-2026)
+============================================================
+
+STRATEGY: RSI Mean Reversion (30/65)
+PAIR:     AUD/USD
+TIMEFRAME: Daily (1D)
+
+------------------------------------------------------------
+ENTRY RULES
+------------------------------------------------------------
+
+BUY SIGNAL:
+  - RSI(14) drops below 30 (oversold)
+  - Enter when RSI crosses BACK ABOVE 30
+  - Place BUY at current Close price
+
+SELL SIGNAL:
+  - RSI(14) rises above 65 (overbought)
+  - Enter when RSI crosses BACK BELOW 65
+  - Place SELL at current Close price
+
+------------------------------------------------------------
+RISK MANAGEMENT
+------------------------------------------------------------
+
+STOP LOSS:  2.5 x ATR(14) from entry price
+TAKE PROFIT: 1.0 x ATR(14) from entry price
+
+  BUY trade:
+    SL = Entry - (ATR x 2.5)
+    TP = Entry + (ATR x 1.0)
+
+  SELL trade:
+    SL = Entry + (ATR x 2.5)
+    TP = Entry - (ATR x 1.0)
+
+NOTE: Wide SL + tight TP = high win rate.
+      You win small often, lose big rarely.
+
+------------------------------------------------------------
+BACKTEST RESULTS (5 YEARS)
+------------------------------------------------------------
+
+  Total Trades:     30
+  Win Rate:         90.0%
+  Total Pips:       +1,856
+  Profit Factor:    5.41
+  Avg Win:          +84.3 pips
+  Avg Loss:         -140.2 pips
+  Risk:Reward:      0.60
+  Expectancy:       +61.9 pips per trade
+  Max Drawdown:     190 pips
+
+------------------------------------------------------------
+EXAMPLE TRADE
+------------------------------------------------------------
+
+  AUD/USD price: 0.6500
+  ATR(14):       0.0065 (65 pips)
+
+  BUY when RSI crosses above 30:
+    Entry: 0.6500
+    SL:    0.6500 - (0.0065 x 2.5) = 0.6338  (-162 pips)
+    TP:    0.6500 + (0.0065 x 1.0) = 0.6565  (+65 pips)
+
+------------------------------------------------------------
+RUNNER-UP STRATEGIES
+------------------------------------------------------------
+
+1. MACD Momentum (SL:3.0 TP:2.0)
+   Trades: 36 | WR: 72.2% | Pips: +2,275 | PF: 2.12
+
+2. MACD Momentum (SL:2.0 TP:2.0)
+   Trades: 45 | WR: 62.2% | Pips: +2,246 | PF: 1.96
+
+3. RSI(30/65) (SL:3.0 TP:1.0)
+   Trades: 30 | WR: 90.0% | Pips: +1,772 | PF: 4.51
+
+------------------------------------------------------------
+WARNINGS
+------------------------------------------------------------
+
+- Past performance does NOT guarantee future results
+- This was tested on DAILY timeframe only
+- 30 trades over 5 years = ~6 trades per year (low frequency)
+- Always use proper position sizing (risk 1-2% per trade)
+- Consider combining with MACD strategy for more signals
+- Test on demo account before going live
+
+============================================================
+        Generated: 2026-02-22
+        Data Source: Yahoo Finance (AUDUSD=X)
+============================================================

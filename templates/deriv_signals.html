@@ -1,0 +1,1820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Signals Dashboard - 1 Hour</title>
+    <style>
+        :root {
+            --bg-primary: #0a0a1a;
+            --bg-secondary: #12122a;
+            --bg-card: rgba(20, 20, 45, 0.95);
+            --border-color: #2a2a5a;
+            --text-primary: #e0e0e0;
+            --text-secondary: #888;
+            --green: #00ff88;
+            --red: #ff4466;
+            --blue: #00d4ff;
+            --yellow: #ffc800;
+            --purple: #a855f7;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: var(--bg-card);
+            border-radius: 15px;
+            border: 1px solid var(--border-color);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            background: linear-gradient(90deg, #00d4ff, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .connection-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(0, 255, 136, 0.1);
+            border-radius: 20px;
+            margin-top: 10px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--green);
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.disconnected {
+            background: var(--red);
+            animation: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .signals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 20px;
+        }
+
+        .signal-card {
+            background: var(--bg-card);
+            border-radius: 15px;
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .signal-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.1);
+        }
+
+        .signal-card.buy-signal {
+            border-color: var(--green);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+        }
+
+        .signal-card.sell-signal {
+            border-color: var(--red);
+            box-shadow: 0 0 20px rgba(255, 68, 102, 0.2);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .pair-name {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .pair-symbol {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .signal-badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .signal-badge.buy {
+            background: rgba(0, 255, 136, 0.2);
+            color: var(--green);
+        }
+
+        .signal-badge.sell {
+            background: rgba(255, 68, 102, 0.2);
+            color: var(--red);
+        }
+
+        .signal-badge.wait {
+            background: rgba(255, 200, 0, 0.2);
+            color: var(--yellow);
+        }
+
+        .price-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .current-price {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--blue);
+        }
+
+        .price-change {
+            font-size: 14px;
+            padding: 4px 10px;
+            border-radius: 10px;
+        }
+
+        .price-change.up {
+            background: rgba(0, 255, 136, 0.2);
+            color: var(--green);
+        }
+
+        .price-change.down {
+            background: rgba(255, 68, 102, 0.2);
+            color: var(--red);
+        }
+
+        .rsi-section {
+            margin-bottom: 15px;
+        }
+
+        .rsi-bar {
+            height: 8px;
+            background: var(--bg-primary);
+            border-radius: 4px;
+            position: relative;
+            margin-top: 8px;
+        }
+
+        .rsi-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .rsi-fill.oversold {
+            background: linear-gradient(90deg, var(--green), #00aa55);
+        }
+
+        .rsi-fill.overbought {
+            background: linear-gradient(90deg, #ff6666, var(--red));
+        }
+
+        .rsi-fill.neutral {
+            background: linear-gradient(90deg, var(--yellow), #ffaa00);
+        }
+
+        .rsi-markers {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .strategy-section {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .strategy-title {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .strategy-params {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            font-size: 12px;
+        }
+
+        .param {
+            text-align: center;
+        }
+
+        .param-label {
+            color: var(--text-secondary);
+            font-size: 10px;
+        }
+
+        .param-value {
+            font-weight: 600;
+            color: var(--blue);
+        }
+
+        .tp-sl-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .tp-box, .sl-box {
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .tp-box {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+
+        .sl-box {
+            background: rgba(255, 68, 102, 0.1);
+            border: 1px solid rgba(255, 68, 102, 0.3);
+        }
+
+        .tp-sl-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+
+        .tp-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--green);
+        }
+
+        .sl-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--red);
+        }
+
+        .win-rate {
+            text-align: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .win-rate-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--purple);
+        }
+
+        .win-rate-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .signal-time {
+            text-align: center;
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 10px;
+        }
+
+        /* Trade Logging Styles */
+        .trade-btn {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .trade-btn.take-trade {
+            background: linear-gradient(135deg, var(--blue), var(--purple));
+            color: white;
+        }
+
+        .trade-btn.take-trade:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .trade-btn:disabled {
+            background: var(--bg-primary);
+            color: var(--text-secondary);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .trade-log-panel {
+            background: var(--bg-card);
+            border-radius: 15px;
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .trade-log-panel h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: var(--purple);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .trade-stats {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .trade-stat {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .trade-stat-value {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .trade-stat-value.profit {
+            color: var(--green);
+        }
+
+        .trade-stat-value.loss {
+            color: var(--red);
+        }
+
+        .trade-stat-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        .trade-history {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .trade-row {
+            display: grid;
+            grid-template-columns: 150px 80px 100px 100px 100px 100px 80px;
+            gap: 10px;
+            padding: 10px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 12px;
+            align-items: center;
+        }
+
+        .trade-row.header {
+            font-weight: 600;
+            color: var(--text-secondary);
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            position: sticky;
+            top: 0;
+        }
+
+        .trade-row.win {
+            background: rgba(0, 255, 136, 0.1);
+        }
+
+        .trade-row.loss {
+            background: rgba(255, 68, 102, 0.1);
+        }
+
+        .trade-row.pending {
+            background: rgba(255, 200, 0, 0.1);
+        }
+
+        .result-badge {
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .result-badge.win {
+            background: rgba(0, 255, 136, 0.2);
+            color: var(--green);
+        }
+
+        .result-badge.loss {
+            background: rgba(255, 68, 102, 0.2);
+            color: var(--red);
+        }
+
+        .result-badge.pending {
+            background: rgba(255, 200, 0, 0.2);
+            color: var(--yellow);
+        }
+
+        .clear-log-btn {
+            padding: 8px 16px;
+            background: rgba(255, 68, 102, 0.2);
+            border: 1px solid var(--red);
+            color: var(--red);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .clear-log-btn:hover {
+            background: rgba(255, 68, 102, 0.3);
+        }
+
+        .lot-size-input {
+            width: 80px;
+            padding: 8px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .lot-size-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 1200px) {
+            .trade-stats {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .trade-row {
+                grid-template-columns: 1fr;
+                gap: 5px;
+            }
+            .trade-row.header {
+                display: none;
+            }
+        }
+
+        .active-signals {
+            background: var(--bg-card);
+            border-radius: 15px;
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .active-signals h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: var(--blue);
+        }
+
+        .active-signals-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .active-signal-item {
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .active-signal-item.buy {
+            background: rgba(0, 255, 136, 0.2);
+            border: 1px solid var(--green);
+            color: var(--green);
+        }
+
+        .active-signal-item.sell {
+            background: rgba(255, 68, 102, 0.2);
+            border: 1px solid var(--red);
+            color: var(--red);
+        }
+
+        .no-signals {
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-box {
+            background: var(--bg-card);
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--blue);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 768px) {
+            .signals-grid {
+                grid-template-columns: 1fr;
+            }
+            .stats-bar {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Alert Controls */
+        .alert-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .control-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            background: var(--bg-primary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .control-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .control-btn.active {
+            background: linear-gradient(135deg, var(--blue), var(--purple));
+            color: white;
+            border-color: transparent;
+        }
+
+        /* Alert Container */
+        #alert-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        /* Alert Popup */
+        .alert-popup {
+            width: 320px;
+            background: var(--bg-card);
+            border-radius: 15px;
+            padding: 20px;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .alert-popup.buy {
+            border: 2px solid var(--green);
+            box-shadow: 0 10px 40px rgba(0, 255, 136, 0.3);
+        }
+
+        .alert-popup.sell {
+            border: 2px solid var(--red);
+            box-shadow: 0 10px 40px rgba(255, 68, 102, 0.3);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        .alert-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .alert-icon {
+            font-size: 24px;
+        }
+
+        .alert-type {
+            font-size: 18px;
+            font-weight: 700;
+            flex: 1;
+        }
+
+        .alert-popup.buy .alert-type {
+            color: var(--green);
+        }
+
+        .alert-popup.sell .alert-type {
+            color: var(--red);
+        }
+
+        .alert-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .alert-close:hover {
+            color: var(--text-primary);
+        }
+
+        .alert-pair {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--blue);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .alert-details {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .alert-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+
+        .alert-row span:first-child {
+            color: var(--text-secondary);
+        }
+
+        .alert-value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .alert-value.tp {
+            color: var(--green);
+        }
+
+        .alert-value.sl {
+            color: var(--red);
+        }
+
+        .alert-time {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-color);
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .alert-popup.buy {
+            animation: slideIn 0.3s ease;
+        }
+
+        .alert-popup.sell {
+            animation: slideIn 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <!-- Alert Container -->
+    <div id="alert-container"></div>
+
+    <div class="header">
+        <h1>Trading Signals Dashboard</h1>
+        <p>Optimized RSI Strategies - 1 Hour Timeframe</p>
+        <div class="connection-status">
+            <div class="status-dot" id="status-dot"></div>
+            <span id="connection-text">Connecting...</span>
+        </div>
+        <div class="alert-controls">
+            <button id="alert-toggle" class="control-btn active" onclick="toggleAlerts()">Alerts ON</button>
+            <button class="control-btn" onclick="clearAlerts()">Clear All</button>
+            <button class="control-btn" onclick="testAlert()">Test</button>
+        </div>
+    </div>
+
+    <div class="stats-bar">
+        <div class="stat-box">
+            <div class="stat-value" id="total-pairs">0</div>
+            <div class="stat-label">Active Pairs</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" id="buy-signals" style="color: var(--green)">0</div>
+            <div class="stat-label">Buy Signals</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" id="sell-signals" style="color: var(--red)">0</div>
+            <div class="stat-label">Sell Signals</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" id="avg-winrate" style="color: var(--purple)">0%</div>
+            <div class="stat-label">Avg Win Rate</div>
+        </div>
+    </div>
+
+    <!-- Trade Log Panel -->
+    <div class="trade-log-panel">
+        <h2>
+            Trade Log & Performance
+            <button class="clear-log-btn" onclick="clearTradeLog()">Clear Log</button>
+        </h2>
+        <div class="lot-size-container">
+            <button id="auto-trade-toggle" class="control-btn active" onclick="toggleAutoTrade()" style="margin-right: 20px;">Auto-Trade ON</button>
+            <span style="color: var(--text-secondary);">Lot Size (USD):</span>
+            <input type="number" id="lot-size" class="lot-size-input" value="10" min="1" step="1">
+        </div>
+        <div class="trade-stats">
+            <div class="trade-stat">
+                <div class="trade-stat-value" id="total-trades">0</div>
+                <div class="trade-stat-label">Total Trades</div>
+            </div>
+            <div class="trade-stat">
+                <div class="trade-stat-value profit" id="wins">0</div>
+                <div class="trade-stat-label">Wins</div>
+            </div>
+            <div class="trade-stat">
+                <div class="trade-stat-value loss" id="losses">0</div>
+                <div class="trade-stat-label">Losses</div>
+            </div>
+            <div class="trade-stat">
+                <div class="trade-stat-value" id="actual-winrate" style="color: var(--purple)">0%</div>
+                <div class="trade-stat-label">Actual Win Rate</div>
+            </div>
+            <div class="trade-stat">
+                <div class="trade-stat-value" id="total-pnl">$0.00</div>
+                <div class="trade-stat-label">Total P&L</div>
+            </div>
+        </div>
+        <div class="trade-history" id="trade-history">
+            <div class="trade-row header">
+                <span>Pair</span>
+                <span>Type</span>
+                <span>Entry</span>
+                <span>TP</span>
+                <span>SL</span>
+                <span>P&L</span>
+                <span>Result</span>
+            </div>
+            <div id="trade-rows">
+                <p style="text-align: center; color: var(--text-secondary); padding: 20px;">No trades logged yet. Click "Take Trade" on any signal to log it.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="active-signals" id="active-signals-container">
+        <h2>Active Signals</h2>
+        <div class="active-signals-list" id="active-signals-list">
+            <span class="no-signals">Waiting for signals...</span>
+        </div>
+    </div>
+
+    <div class="signals-grid" id="signals-grid">
+        <!-- Signal cards will be inserted here -->
+    </div>
+
+    <script>
+        // ============================================
+        // ADVANCED RSI TRADING BOT CONFIGURATION
+        // Based on multi-confirmation strategy
+        // ============================================
+
+        const BOT_CONFIG = {
+            // RSI Settings
+            rsiPeriod: 14,
+            rsiOverbought: 70,
+            rsiOversold: 30,
+            rsiHighThreshold: 75,
+            rsiLowThreshold: 25,
+
+            // Trend Filter (SMA)
+            smaFast: 20,
+            smaSlow: 50,
+            useTrendFilter: true,
+
+            // Risk Management
+            stopLossPct: 0.02,    // 2% stop loss
+            takeProfitPct: 0.04,  // 4% take profit
+
+            // Confirmations required (out of 5 possible)
+            minBuyConfirmations: 3,
+            minSellConfirmations: 3
+        };
+
+        // Symbols to trade
+        const SYMBOLS = {
+            'R_10': { name: 'Volatility 10' },
+            'R_25': { name: 'Volatility 25' },
+            'R_50': { name: 'Volatility 50' },
+            'R_75': { name: 'Volatility 75' },
+            'R_100': { name: 'Volatility 100' },
+            '1HZ10V': { name: 'Volatility 10 (1s)' },
+            '1HZ25V': { name: 'Volatility 25 (1s)' },
+            '1HZ50V': { name: 'Volatility 50 (1s)' },
+            '1HZ75V': { name: 'Volatility 75 (1s)' },
+            '1HZ100V': { name: 'Volatility 100 (1s)' }
+        };
+
+        const WS_URL = 'wss://ws.derivws.com/websockets/v3?app_id=1089';
+        let ws = null;
+        let isConnected = false;
+        let pairData = {};
+        let activeSignals = {};
+
+        // Initialize pair data with extended indicators
+        Object.keys(SYMBOLS).forEach(symbol => {
+            pairData[symbol] = {
+                price: 0,
+                prevPrice: 0,
+                rsi: 50,
+                prevRsi: 50,
+                prices: [],
+                signal: 'WAIT',
+                tp: 0,
+                sl: 0,
+                signalTime: null,
+                // New indicators
+                smaFast: 0,
+                smaSlow: 0,
+                trend: 'neutral',
+                buyConditions: [],
+                sellConditions: [],
+                confirmationCount: 0
+            };
+        });
+
+        function connect() {
+            ws = new WebSocket(WS_URL);
+
+            ws.onopen = () => {
+                isConnected = true;
+                document.getElementById('status-dot').classList.remove('disconnected');
+                document.getElementById('connection-text').textContent = 'Connected';
+                subscribeToAll();
+            };
+
+            ws.onmessage = (msg) => {
+                const data = JSON.parse(msg.data);
+                handleMessage(data);
+            };
+
+            ws.onclose = () => {
+                isConnected = false;
+                document.getElementById('status-dot').classList.add('disconnected');
+                document.getElementById('connection-text').textContent = 'Disconnected';
+                setTimeout(connect, 3000);
+            };
+
+            ws.onerror = () => {
+                ws.close();
+            };
+        }
+
+        function subscribeToAll() {
+            // Get historical data for RSI and SMA calculation
+            Object.keys(SYMBOLS).forEach(symbol => {
+                // Request candles - need enough for SMA slow (50 periods)
+                ws.send(JSON.stringify({
+                    ticks_history: symbol,
+                    adjust_start_time: 1,
+                    count: 100,
+                    end: "latest",
+                    granularity: 3600,  // 1 hour
+                    style: "candles"
+                }));
+
+                // Subscribe to ticks
+                ws.send(JSON.stringify({
+                    ticks: symbol,
+                    subscribe: 1
+                }));
+            });
+        }
+
+        function handleMessage(data) {
+            if (data.candles) {
+                const symbol = data.echo_req.ticks_history;
+                if (pairData[symbol]) {
+                    const prices = data.candles.map(c => parseFloat(c.close));
+                    pairData[symbol].prices = prices;
+                    calculateIndicators(symbol);
+                }
+            }
+
+            if (data.tick) {
+                const symbol = data.tick.symbol;
+                if (pairData[symbol]) {
+                    pairData[symbol].prevPrice = pairData[symbol].price;
+                    pairData[symbol].price = parseFloat(data.tick.quote);
+
+                    // Add to prices array
+                    pairData[symbol].prices.push(pairData[symbol].price);
+                    if (pairData[symbol].prices.length > 100) {
+                        pairData[symbol].prices.shift();
+                    }
+
+                    calculateIndicators(symbol);
+                    updateCard(symbol);
+                }
+            }
+        }
+
+        // ============================================
+        // INDICATOR CALCULATIONS
+        // ============================================
+
+        function calculateRSI(prices, period) {
+            if (prices.length < period + 1) return 50;
+
+            let gains = 0;
+            let losses = 0;
+
+            for (let i = prices.length - period; i < prices.length; i++) {
+                const diff = prices[i] - prices[i - 1];
+                if (diff > 0) gains += diff;
+                else losses -= diff;
+            }
+
+            const avgGain = gains / period;
+            const avgLoss = losses / period;
+
+            if (avgLoss === 0) return 100;
+            const rs = avgGain / avgLoss;
+            return 100 - (100 / (1 + rs));
+        }
+
+        function calculateSMA(prices, period) {
+            if (prices.length < period) return prices[prices.length - 1] || 0;
+            const slice = prices.slice(-period);
+            return slice.reduce((a, b) => a + b, 0) / period;
+        }
+
+        function getTrend(price, smaFast, smaSlow) {
+            if (!BOT_CONFIG.useTrendFilter) return 'neutral';
+
+            // Uptrend: price above both MAs, fast MA above slow MA
+            if (price > smaFast && price > smaSlow && smaFast > smaSlow) {
+                return 'uptrend';
+            }
+            // Downtrend: price below both MAs, fast MA below slow MA
+            else if (price < smaFast && price < smaSlow && smaFast < smaSlow) {
+                return 'downtrend';
+            }
+            return 'neutral';
+        }
+
+        function calculateIndicators(symbol) {
+            const data = pairData[symbol];
+
+            if (data.prices.length < BOT_CONFIG.smaSlow + 1) return;
+
+            // Calculate RSI
+            data.prevRsi = data.rsi;
+            data.rsi = calculateRSI(data.prices, BOT_CONFIG.rsiPeriod);
+
+            // Calculate SMAs for trend
+            data.smaFast = calculateSMA(data.prices, BOT_CONFIG.smaFast);
+            data.smaSlow = calculateSMA(data.prices, BOT_CONFIG.smaSlow);
+
+            // Determine trend
+            data.trend = getTrend(data.price, data.smaFast, data.smaSlow);
+
+            checkSignal(symbol);
+        }
+
+        function checkSignal(symbol) {
+            const data = pairData[symbol];
+            const prevSignal = data.signal;
+
+            // Reset conditions
+            data.buyConditions = [];
+            data.sellConditions = [];
+
+            // ============================================
+            // BUY CONDITIONS (need multiple confirmations)
+            // ============================================
+
+            // 1. RSI Oversold
+            if (data.rsi <= BOT_CONFIG.rsiOversold) {
+                data.buyConditions.push('RSI Oversold');
+            }
+
+            // 2. RSI Cross up from oversold (stronger signal)
+            if (data.prevRsi <= BOT_CONFIG.rsiOversold && data.rsi > BOT_CONFIG.rsiOversold) {
+                data.buyConditions.push('RSI Cross Up');
+            }
+
+            // 3. RSI Extreme low
+            if (data.rsi <= BOT_CONFIG.rsiLowThreshold) {
+                data.buyConditions.push('RSI Extreme Low');
+            }
+
+            // 4. Price above MAs (trend alignment for longs)
+            if (data.price > data.smaFast && data.price > data.smaSlow) {
+                data.buyConditions.push('Above MAs');
+            }
+
+            // 5. Trend alignment (uptrend or neutral OK for buys)
+            if (data.trend === 'uptrend' || data.trend === 'neutral') {
+                data.buyConditions.push('Trend OK');
+            }
+
+            // ============================================
+            // SELL CONDITIONS (for closing longs)
+            // ============================================
+
+            // 1. RSI Overbought
+            if (data.rsi >= BOT_CONFIG.rsiOverbought) {
+                data.sellConditions.push('RSI Overbought');
+            }
+
+            // 2. RSI Cross down from overbought
+            if (data.prevRsi >= BOT_CONFIG.rsiOverbought && data.rsi < BOT_CONFIG.rsiOverbought) {
+                data.sellConditions.push('RSI Cross Down');
+            }
+
+            // 3. RSI Extreme high
+            if (data.rsi >= BOT_CONFIG.rsiHighThreshold) {
+                data.sellConditions.push('RSI Extreme High');
+            }
+
+            // 4. Price below MAs
+            if (data.price < data.smaFast && data.price < data.smaSlow) {
+                data.sellConditions.push('Below MAs');
+            }
+
+            // 5. Downtrend
+            if (data.trend === 'downtrend') {
+                data.sellConditions.push('Downtrend');
+            }
+
+            // ============================================
+            // GENERATE SIGNAL based on confirmations
+            // ============================================
+
+            const buyConfirmations = data.buyConditions.length;
+            const sellConfirmations = data.sellConditions.length;
+            data.confirmationCount = Math.max(buyConfirmations, sellConfirmations);
+
+            // Check for new signals (not already in a trade for this symbol)
+            if (!activeSignals[symbol]) {
+                // BUY signal - need minimum confirmations
+                if (buyConfirmations >= BOT_CONFIG.minBuyConfirmations &&
+                    data.buyConditions.includes('RSI Cross Up')) {
+
+                    data.signal = 'BUY';
+                    data.tp = data.price * (1 + BOT_CONFIG.takeProfitPct);
+                    data.sl = data.price * (1 - BOT_CONFIG.stopLossPct);
+                    data.signalTime = new Date();
+                    activeSignals[symbol] = {
+                        type: 'BUY',
+                        price: data.price,
+                        tp: data.tp,
+                        sl: data.sl,
+                        conditions: [...data.buyConditions]
+                    };
+                }
+                // SELL signal for shorting (if we wanted to short)
+                else if (sellConfirmations >= BOT_CONFIG.minSellConfirmations &&
+                         data.sellConditions.includes('RSI Cross Down')) {
+
+                    data.signal = 'SELL';
+                    data.tp = data.price * (1 - BOT_CONFIG.takeProfitPct);
+                    data.sl = data.price * (1 + BOT_CONFIG.stopLossPct);
+                    data.signalTime = new Date();
+                    activeSignals[symbol] = {
+                        type: 'SELL',
+                        price: data.price,
+                        tp: data.tp,
+                        sl: data.sl,
+                        conditions: [...data.sellConditions]
+                    };
+                }
+            }
+            // Check existing positions for TP/SL
+            else {
+                const sig = activeSignals[symbol];
+                let shouldClose = false;
+
+                if (sig.type === 'BUY') {
+                    // Take profit
+                    if (data.price >= sig.tp) {
+                        shouldClose = true;
+                    }
+                    // Stop loss
+                    else if (data.price <= sig.sl) {
+                        shouldClose = true;
+                    }
+                    // RSI overbought exit (optional early exit)
+                    else if (data.rsi >= BOT_CONFIG.rsiHighThreshold && data.price > sig.price) {
+                        shouldClose = true;
+                    }
+                } else if (sig.type === 'SELL') {
+                    // Take profit (price went down)
+                    if (data.price <= sig.tp) {
+                        shouldClose = true;
+                    }
+                    // Stop loss (price went up)
+                    else if (data.price >= sig.sl) {
+                        shouldClose = true;
+                    }
+                    // RSI oversold exit
+                    else if (data.rsi <= BOT_CONFIG.rsiLowThreshold && data.price < sig.price) {
+                        shouldClose = true;
+                    }
+                }
+
+                if (shouldClose) {
+                    delete activeSignals[symbol];
+                    data.signal = 'WAIT';
+                }
+            }
+
+            // Trigger events for new signals
+            if (prevSignal !== data.signal && (data.signal === 'BUY' || data.signal === 'SELL')) {
+                const conditions = data.signal === 'BUY' ? data.buyConditions : data.sellConditions;
+                console.log(`${symbol}: ${data.signal} signal with ${conditions.length} confirmations:`, conditions);
+
+                triggerAlert(symbol, data.signal, data.price, data.tp, data.sl);
+                updateActiveSignals();
+                updateStats();
+
+                // Auto-take trade if enabled
+                if (autoTradeEnabled) {
+                    const hasActiveTrade = Object.values(activeTrades).some(t => t.symbol === symbol);
+                    if (!hasActiveTrade) {
+                        takeTrade(symbol);
+                    }
+                }
+            } else if (prevSignal !== data.signal) {
+                updateActiveSignals();
+                updateStats();
+            }
+        }
+
+        // Alert System - Simple & Stable
+        let alertsEnabled = true;
+
+        function showPopupAlert(symbol, type, price, tp, sl) {
+            const strategy = STRATEGIES[symbol];
+            const popup = document.createElement('div');
+            popup.className = `alert-popup ${type.toLowerCase()}`;
+            popup.innerHTML = `
+                <div class="alert-header">
+                    <span class="alert-icon">${type === 'BUY' ? '📈' : '📉'}</span>
+                    <span class="alert-type">${type} SIGNAL</span>
+                    <button class="alert-close" onclick="this.parentElement.parentElement.remove()">X</button>
+                </div>
+                <div class="alert-pair">${strategy.name}</div>
+                <div class="alert-details">
+                    <div class="alert-row">
+                        <span>Entry Price:</span>
+                        <span class="alert-value">${price.toFixed(price < 100 ? 4 : 2)}</span>
+                    </div>
+                    <div class="alert-row">
+                        <span>Take Profit:</span>
+                        <span class="alert-value tp">${tp.toFixed(tp < 100 ? 4 : 2)}</span>
+                    </div>
+                    <div class="alert-row">
+                        <span>Stop Loss:</span>
+                        <span class="alert-value sl">${sl.toFixed(sl < 100 ? 4 : 2)}</span>
+                    </div>
+                    <div class="alert-row">
+                        <span>Win Rate:</span>
+                        <span class="alert-value">${strategy.winRate}%</span>
+                    </div>
+                </div>
+                <div class="alert-time">${new Date().toLocaleTimeString()}</div>
+            `;
+
+            document.getElementById('alert-container').appendChild(popup);
+
+            // Play beep sound
+            try {
+                const beep = new Audio('data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU');
+                beep.volume = 0.5;
+                beep.play().catch(() => {});
+            } catch(e) {}
+        }
+
+        function triggerAlert(symbol, type, price, tp, sl) {
+            if (!alertsEnabled) return;
+            showPopupAlert(symbol, type, price, tp, sl);
+        }
+
+        function toggleAlerts() {
+            alertsEnabled = !alertsEnabled;
+            const btn = document.getElementById('alert-toggle');
+            btn.textContent = alertsEnabled ? 'Alerts ON' : 'Alerts OFF';
+            btn.className = `control-btn ${alertsEnabled ? 'active' : ''}`;
+        }
+
+        function clearAlerts() {
+            document.getElementById('alert-container').innerHTML = '';
+        }
+
+        function testAlert() {
+            triggerAlert('R_75', 'BUY', 12345.67, 12400.00, 12200.00);
+        }
+
+        function updateCard(symbol) {
+            const card = document.getElementById(`card-${symbol}`);
+            if (!card) return;
+
+            const data = pairData[symbol];
+
+            // Update price
+            const priceEl = card.querySelector('.current-price');
+            priceEl.textContent = data.price.toFixed(data.price < 100 ? 4 : 2);
+
+            // Update price change
+            const changeEl = card.querySelector('.price-change');
+            const change = data.price - data.prevPrice;
+            const changePct = data.prevPrice ? ((change / data.prevPrice) * 100).toFixed(3) : 0;
+            changeEl.textContent = `${change >= 0 ? '+' : ''}${changePct}%`;
+            changeEl.className = `price-change ${change >= 0 ? 'up' : 'down'}`;
+
+            // Update RSI
+            const rsiValue = card.querySelector('.rsi-value');
+            rsiValue.textContent = data.rsi.toFixed(1);
+
+            const rsiFill = card.querySelector('.rsi-fill');
+            rsiFill.style.width = `${data.rsi}%`;
+            if (data.rsi <= BOT_CONFIG.rsiOversold) {
+                rsiFill.className = 'rsi-fill oversold';
+            } else if (data.rsi >= BOT_CONFIG.rsiOverbought) {
+                rsiFill.className = 'rsi-fill overbought';
+            } else {
+                rsiFill.className = 'rsi-fill neutral';
+            }
+
+            // Update trend indicator
+            const trendValue = card.querySelector('.trend-value');
+            if (trendValue) {
+                trendValue.textContent = data.trend.toUpperCase();
+                trendValue.style.color = data.trend === 'uptrend' ? 'var(--green)' :
+                                         data.trend === 'downtrend' ? 'var(--red)' : 'var(--yellow)';
+            }
+
+            // Update SMA status
+            const smaValue = card.querySelector('.sma-value');
+            if (smaValue && data.smaFast && data.smaSlow) {
+                const aboveFast = data.price > data.smaFast;
+                const aboveSlow = data.price > data.smaSlow;
+                smaValue.textContent = aboveFast && aboveSlow ? 'ABOVE' :
+                                      !aboveFast && !aboveSlow ? 'BELOW' : 'MIXED';
+                smaValue.style.color = aboveFast && aboveSlow ? 'var(--green)' :
+                                      !aboveFast && !aboveSlow ? 'var(--red)' : 'var(--yellow)';
+            }
+
+            // Update confirmation count
+            const confirmValue = card.querySelector('.confirm-value');
+            if (confirmValue) {
+                const buyCount = data.buyConditions.length;
+                const sellCount = data.sellConditions.length;
+                const maxCount = Math.max(buyCount, sellCount);
+                confirmValue.textContent = `${maxCount}/${BOT_CONFIG.minBuyConfirmations}`;
+                confirmValue.style.color = maxCount >= BOT_CONFIG.minBuyConfirmations ? 'var(--green)' :
+                                          maxCount >= 2 ? 'var(--yellow)' : 'var(--text-secondary)';
+            }
+
+            // Update conditions list
+            const conditionsList = card.querySelector('.conditions-list');
+            if (conditionsList) {
+                const allConditions = [...data.buyConditions.map(c => `🟢 ${c}`),
+                                       ...data.sellConditions.map(c => `🔴 ${c}`)];
+                conditionsList.textContent = allConditions.length > 0 ?
+                    allConditions.join(' | ') : 'No conditions met';
+            }
+
+            // Update signal badge
+            const badge = card.querySelector('.signal-badge');
+            badge.textContent = data.signal;
+            badge.className = `signal-badge ${data.signal.toLowerCase()}`;
+
+            // Update card border
+            card.className = `signal-card ${data.signal === 'BUY' ? 'buy-signal' : data.signal === 'SELL' ? 'sell-signal' : ''}`;
+
+            // Update TP/SL
+            const tpValue = card.querySelector('.tp-value');
+            const slValue = card.querySelector('.sl-value');
+
+            if (data.signal === 'BUY' || data.signal === 'SELL') {
+                tpValue.textContent = data.tp.toFixed(data.tp < 100 ? 4 : 2);
+                slValue.textContent = data.sl.toFixed(data.sl < 100 ? 4 : 2);
+            } else {
+                tpValue.textContent = '--';
+                slValue.textContent = '--';
+            }
+
+            // Update signal time
+            const timeEl = card.querySelector('.signal-time');
+            if (data.signalTime && (data.signal === 'BUY' || data.signal === 'SELL')) {
+                timeEl.textContent = `Signal at: ${data.signalTime.toLocaleTimeString()}`;
+            } else {
+                timeEl.textContent = 'Waiting for signal...';
+            }
+
+            // Update trade button
+            const tradeBtn = document.getElementById(`trade-btn-${symbol}`);
+            if (tradeBtn) {
+                const hasActiveTrade = Object.values(activeTrades).some(t => t.symbol === symbol);
+                if (hasActiveTrade) {
+                    tradeBtn.disabled = true;
+                    tradeBtn.textContent = 'Trade Active';
+                } else if (data.signal === 'BUY' || data.signal === 'SELL') {
+                    tradeBtn.disabled = false;
+                    tradeBtn.textContent = 'Take Trade';
+                } else {
+                    tradeBtn.disabled = true;
+                    tradeBtn.textContent = 'Waiting...';
+                }
+            }
+
+            // Update active signals display (for live pip tracking)
+            if (activeSignals[symbol]) {
+                updateActiveSignals();
+            }
+        }
+
+        function updateActiveSignals() {
+            const container = document.getElementById('active-signals-list');
+            const signals = Object.entries(activeSignals);
+
+            if (signals.length === 0) {
+                container.innerHTML = '<span class="no-signals">No active signals</span>';
+                return;
+            }
+
+            container.innerHTML = signals.map(([symbol, sig]) => {
+                const info = SYMBOLS[symbol];
+                const currentPrice = pairData[symbol]?.price || sig.price;
+
+                // Calculate pips (price difference)
+                let pipDiff, pipColor, pipSign;
+                if (sig.type === 'BUY') {
+                    pipDiff = currentPrice - sig.price;
+                } else {
+                    pipDiff = sig.price - currentPrice;
+                }
+                pipColor = pipDiff >= 0 ? 'var(--green)' : 'var(--red)';
+                pipSign = pipDiff >= 0 ? '+' : '';
+
+                // Calculate progress to TP/SL
+                const tpDist = Math.abs(sig.tp - sig.price);
+                const slDist = Math.abs(sig.sl - sig.price);
+                const currentDist = Math.abs(currentPrice - sig.price);
+                const progressPct = pipDiff >= 0 ?
+                    ((currentDist / tpDist) * 100).toFixed(0) :
+                    -((currentDist / slDist) * 100).toFixed(0);
+
+                return `
+                    <div class="active-signal-item ${sig.type.toLowerCase()}" style="flex-direction: column; align-items: flex-start; gap: 8px; min-width: 280px;">
+                        <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+                            <strong>${info.name}</strong>
+                            <span style="background: ${sig.type === 'BUY' ? 'var(--green)' : 'var(--red)'}; color: black; padding: 2px 8px; border-radius: 4px; font-size: 11px;">${sig.type}</span>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; font-size: 12px;">
+                            <div>
+                                <div style="color: var(--text-secondary); font-size: 10px;">Entry</div>
+                                <div>${sig.price.toFixed(2)}</div>
+                            </div>
+                            <div>
+                                <div style="color: var(--text-secondary); font-size: 10px;">Current</div>
+                                <div style="color: var(--blue); font-weight: bold;">${currentPrice.toFixed(2)}</div>
+                            </div>
+                            <div>
+                                <div style="color: var(--text-secondary); font-size: 10px;">TP</div>
+                                <div style="color: var(--green);">${sig.tp.toFixed(2)}</div>
+                            </div>
+                            <div>
+                                <div style="color: var(--text-secondary); font-size: 10px;">SL</div>
+                                <div style="color: var(--red);">${sig.sl.toFixed(2)}</div>
+                            </div>
+                        </div>
+                        <div style="width: 100%; text-align: center; padding: 8px; background: rgba(0,0,0,0.3); border-radius: 8px;">
+                            <span style="color: ${pipColor}; font-size: 18px; font-weight: bold;">${pipSign}${pipDiff.toFixed(2)} pips</span>
+                            <span style="color: var(--text-secondary); font-size: 11px; margin-left: 10px;">(${progressPct}% to ${pipDiff >= 0 ? 'TP' : 'SL'})</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateStats() {
+            const buyCount = Object.values(activeSignals).filter(s => s.type === 'BUY').length;
+            const sellCount = Object.values(activeSignals).filter(s => s.type === 'SELL').length;
+
+            document.getElementById('total-pairs').textContent = Object.keys(SYMBOLS).length;
+            document.getElementById('buy-signals').textContent = buyCount;
+            document.getElementById('sell-signals').textContent = sellCount;
+            document.getElementById('avg-winrate').textContent = '--'; // Will show actual from trade log
+        }
+
+        function createCards() {
+            const grid = document.getElementById('signals-grid');
+
+            Object.entries(SYMBOLS).forEach(([symbol, info]) => {
+                const card = document.createElement('div');
+                card.className = 'signal-card';
+                card.id = `card-${symbol}`;
+
+                card.innerHTML = `
+                    <div class="card-header">
+                        <div>
+                            <div class="pair-name">${info.name}</div>
+                            <div class="pair-symbol">${symbol}</div>
+                        </div>
+                        <span class="signal-badge wait">WAIT</span>
+                    </div>
+
+                    <div class="price-section">
+                        <div class="current-price">--</div>
+                        <div class="price-change">0.00%</div>
+                    </div>
+
+                    <div class="rsi-section">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 12px; color: var(--text-secondary);">RSI (${BOT_CONFIG.rsiPeriod})</span>
+                            <span class="rsi-value" style="font-weight: 600;">--</span>
+                        </div>
+                        <div class="rsi-bar">
+                            <div class="rsi-fill neutral" style="width: 50%"></div>
+                        </div>
+                        <div class="rsi-markers">
+                            <span>0</span>
+                            <span style="color: var(--green)">${BOT_CONFIG.rsiOversold}</span>
+                            <span>50</span>
+                            <span style="color: var(--red)">${BOT_CONFIG.rsiOverbought}</span>
+                            <span>100</span>
+                        </div>
+                    </div>
+
+                    <div class="strategy-section">
+                        <div class="strategy-title">Confirmations</div>
+                        <div class="strategy-params">
+                            <div class="param">
+                                <div class="param-label">Trend</div>
+                                <div class="param-value trend-value">--</div>
+                            </div>
+                            <div class="param">
+                                <div class="param-label">SMA 20/50</div>
+                                <div class="param-value sma-value">--</div>
+                            </div>
+                            <div class="param">
+                                <div class="param-label">Signals</div>
+                                <div class="param-value confirm-value">0/3</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tp-sl-section">
+                        <div class="tp-box">
+                            <div class="tp-sl-label">Take Profit (${(BOT_CONFIG.takeProfitPct * 100).toFixed(0)}%)</div>
+                            <div class="tp-value">--</div>
+                        </div>
+                        <div class="sl-box">
+                            <div class="tp-sl-label">Stop Loss (${(BOT_CONFIG.stopLossPct * 100).toFixed(0)}%)</div>
+                            <div class="sl-value">--</div>
+                        </div>
+                    </div>
+
+                    <div class="conditions-display" style="margin-top: 10px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; font-size: 11px;">
+                        <div style="color: var(--text-secondary); margin-bottom: 5px;">Active Conditions:</div>
+                        <div class="conditions-list" style="color: var(--blue);">Waiting for data...</div>
+                    </div>
+
+                    <div class="signal-time">Waiting for signal...</div>
+
+                    <button id="trade-btn-${symbol}" class="trade-btn take-trade" onclick="takeTrade('${symbol}')" disabled>
+                        Take Trade
+                    </button>
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        // ============================================
+        // TRADE LOGGING SYSTEM
+        // ============================================
+
+        let tradeLog = JSON.parse(localStorage.getItem('vixTradeLog') || '[]');
+        let activeTrades = {}; // Tracks trades waiting for TP/SL
+        let autoTradeEnabled = true; // Auto-trade mode
+
+        function getLotSize() {
+            return parseFloat(document.getElementById('lot-size').value) || 10;
+        }
+
+        function toggleAutoTrade() {
+            autoTradeEnabled = !autoTradeEnabled;
+            const btn = document.getElementById('auto-trade-toggle');
+            btn.textContent = autoTradeEnabled ? 'Auto-Trade ON' : 'Auto-Trade OFF';
+            btn.className = `control-btn ${autoTradeEnabled ? 'active' : ''}`;
+        }
+
+        function takeTrade(symbol) {
+            const data = pairData[symbol];
+            const info = SYMBOLS[symbol];
+
+            if (data.signal !== 'BUY' && data.signal !== 'SELL') return;
+
+            const trade = {
+                id: Date.now(),
+                symbol: symbol,
+                pairName: info.name,
+                type: data.signal,
+                entry: data.price,
+                tp: data.tp,
+                sl: data.sl,
+                lotSize: getLotSize(),
+                time: new Date().toISOString(),
+                result: 'PENDING',
+                pnl: 0,
+                closePrice: null,
+                conditions: data.signal === 'BUY' ? [...data.buyConditions] : [...data.sellConditions]
+            };
+
+            tradeLog.push(trade);
+            activeTrades[trade.id] = trade;
+            saveTradeLog();
+            updateTradeLogUI();
+
+            console.log(`Trade taken: ${trade.type} ${info.name} @ ${trade.entry} | Conditions: ${trade.conditions.join(', ')}`);
+
+            // Update button state
+            const btn = document.getElementById(`trade-btn-${symbol}`);
+            if (btn) {
+                btn.disabled = true;
+                btn.textContent = 'Trade Active';
+            }
+        }
+
+        function checkTradeResults() {
+            Object.keys(activeTrades).forEach(tradeId => {
+                const trade = activeTrades[tradeId];
+                const currentPrice = pairData[trade.symbol]?.price;
+
+                if (!currentPrice) return;
+
+                let result = null;
+                let closePrice = null;
+
+                if (trade.type === 'BUY') {
+                    if (currentPrice >= trade.tp) {
+                        result = 'WIN';
+                        closePrice = trade.tp;
+                    } else if (currentPrice <= trade.sl) {
+                        result = 'LOSS';
+                        closePrice = trade.sl;
+                    }
+                } else { // SELL
+                    if (currentPrice <= trade.tp) {
+                        result = 'WIN';
+                        closePrice = trade.tp;
+                    } else if (currentPrice >= trade.sl) {
+                        result = 'LOSS';
+                        closePrice = trade.sl;
+                    }
+                }
+
+                if (result) {
+                    // Calculate P&L
+                    const priceDiff = trade.type === 'BUY'
+                        ? closePrice - trade.entry
+                        : trade.entry - closePrice;
+                    const pnlPercent = (priceDiff / trade.entry) * 100;
+                    trade.pnl = (pnlPercent / 100) * trade.lotSize;
+                    trade.result = result;
+                    trade.closePrice = closePrice;
+                    trade.closeTime = new Date().toISOString();
+
+                    // Update in trade log
+                    const logIndex = tradeLog.findIndex(t => t.id === trade.id);
+                    if (logIndex !== -1) {
+                        tradeLog[logIndex] = trade;
+                    }
+
+                    // Remove from active trades
+                    delete activeTrades[tradeId];
+
+                    // Re-enable button
+                    const btn = document.getElementById(`trade-btn-${trade.symbol}`);
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.textContent = 'Take Trade';
+                    }
+
+                    saveTradeLog();
+                    updateTradeLogUI();
+
+                    // Show result alert
+                    showTradeResultAlert(trade);
+                }
+            });
+        }
+
+        function showTradeResultAlert(trade) {
+            const popup = document.createElement('div');
+            popup.className = `alert-popup ${trade.result === 'WIN' ? 'buy' : 'sell'}`;
+            popup.innerHTML = `
+                <div class="alert-header">
+                    <span class="alert-icon">${trade.result === 'WIN' ? '✅' : '❌'}</span>
+                    <span class="alert-type">${trade.result}</span>
+                    <button class="alert-close" onclick="this.parentElement.parentElement.remove()">×</button>
+                </div>
+                <div class="alert-pair">${trade.pairName}</div>
+                <div class="alert-details">
+                    <div class="alert-row">
+                        <span>Entry:</span>
+                        <span class="alert-value">${trade.entry.toFixed(trade.entry < 100 ? 4 : 2)}</span>
+                    </div>
+                    <div class="alert-row">
+                        <span>Close:</span>
+                        <span class="alert-value">${trade.closePrice.toFixed(trade.closePrice < 100 ? 4 : 2)}</span>
+                    </div>
+                    <div class="alert-row">
+                        <span>P&L:</span>
+                        <span class="alert-value ${trade.pnl >= 0 ? 'tp' : 'sl'}">$${trade.pnl.toFixed(2)}</span>
+                    </div>
+                </div>
+                <div class="alert-time">${new Date().toLocaleTimeString()}</div>
+            `;
+            document.getElementById('alert-container').appendChild(popup);
+        }
+
+        function updateTradeLogUI() {
+            const completed = tradeLog.filter(t => t.result !== 'PENDING');
+            const wins = completed.filter(t => t.result === 'WIN').length;
+            const losses = completed.filter(t => t.result === 'LOSS').length;
+            const totalPnl = tradeLog.reduce((sum, t) => sum + (t.pnl || 0), 0);
+            const winRate = completed.length > 0 ? (wins / completed.length * 100) : 0;
+
+            document.getElementById('total-trades').textContent = tradeLog.length;
+            document.getElementById('wins').textContent = wins;
+            document.getElementById('losses').textContent = losses;
+            document.getElementById('actual-winrate').textContent = winRate.toFixed(1) + '%';
+
+            const pnlEl = document.getElementById('total-pnl');
+            pnlEl.textContent = `$${totalPnl.toFixed(2)}`;
+            pnlEl.className = `trade-stat-value ${totalPnl >= 0 ? 'profit' : 'loss'}`;
+
+            // Update trade rows
+            const rowsContainer = document.getElementById('trade-rows');
+            if (tradeLog.length === 0) {
+                rowsContainer.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 20px;">No trades logged yet. Click "Take Trade" on any signal to log it.</p>';
+                return;
+            }
+
+            rowsContainer.innerHTML = tradeLog.slice().reverse().map(trade => `
+                <div class="trade-row ${trade.result.toLowerCase()}">
+                    <span><strong>${trade.pairName}</strong><br><small>${new Date(trade.time).toLocaleString()}</small></span>
+                    <span style="color: ${trade.type === 'BUY' ? 'var(--green)' : 'var(--red)'}">${trade.type}</span>
+                    <span>${trade.entry.toFixed(trade.entry < 100 ? 4 : 2)}</span>
+                    <span style="color: var(--green)">${trade.tp.toFixed(trade.tp < 100 ? 4 : 2)}</span>
+                    <span style="color: var(--red)">${trade.sl.toFixed(trade.sl < 100 ? 4 : 2)}</span>
+                    <span style="color: ${trade.pnl >= 0 ? 'var(--green)' : 'var(--red)'}">$${trade.pnl.toFixed(2)}</span>
+                    <span class="result-badge ${trade.result.toLowerCase()}">${trade.result}</span>
+                </div>
+            `).join('');
+        }
+
+        function saveTradeLog() {
+            localStorage.setItem('vixTradeLog', JSON.stringify(tradeLog));
+        }
+
+        function clearTradeLog() {
+            if (confirm('Are you sure you want to clear all trade history?')) {
+                tradeLog = [];
+                activeTrades = {};
+                saveTradeLog();
+                updateTradeLogUI();
+
+                // Re-enable all buttons
+                Object.keys(SYMBOLS).forEach(symbol => {
+                    const btn = document.getElementById(`trade-btn-${symbol}`);
+                    if (btn) {
+                        btn.disabled = pairData[symbol].signal === 'WAIT';
+                        btn.textContent = 'Take Trade';
+                    }
+                });
+            }
+        }
+
+        // Check trade results every second
+        setInterval(checkTradeResults, 1000);
+
+        // Restore active trades from storage on page load
+        function restoreActiveTrades() {
+            tradeLog.filter(t => t.result === 'PENDING').forEach(trade => {
+                activeTrades[trade.id] = trade;
+            });
+            updateTradeLogUI();
+        }
+
+        // ============================================
+        // END TRADE LOGGING SYSTEM
+        // ============================================
+
+        // Initialize
+        createCards();
+        updateStats();
+        restoreActiveTrades();
+        connect();
+    </script>
+</body>
+</html>

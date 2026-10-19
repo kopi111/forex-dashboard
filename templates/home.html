@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Dashboard Hub</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #0a0e17;
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+        .header {
+            background: linear-gradient(135deg, #1a1f2e 0%, #0d1117 100%);
+            border-bottom: 1px solid #333;
+            padding: 24px 32px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 28px;
+            background: linear-gradient(90deg, #00d4ff, #7b2fff, #ff6b35);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+        .header p { color: #888; font-size: 14px; }
+        .container {
+            max-width: 1200px;
+            margin: 32px auto;
+            padding: 0 24px;
+        }
+        .section-title {
+            font-size: 18px;
+            color: #aaa;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #222;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .card {
+            background: linear-gradient(135deg, #151a28, #1a1f2e);
+            border: 1px solid #2a2f3e;
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .card:hover {
+            border-color: #555;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+        .card h3 { font-size: 18px; font-weight: 600; }
+        .card p { color: #888; font-size: 13px; line-height: 1.5; margin-bottom: 12px; }
+        .card-stats {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .stat {
+            font-size: 12px;
+            color: #666;
+        }
+        .stat span {
+            color: #4ade80;
+            font-weight: 600;
+        }
+        .stat.warn span { color: #fbbf24; }
+        .gold .card-icon { background: linear-gradient(135deg, #d4a017, #b8860b); }
+        .forex .card-icon { background: linear-gradient(135deg, #2563eb, #1e40af); }
+        .deriv .card-icon { background: linear-gradient(135deg, #7c3aed, #5b21b6); }
+        .bot .card-icon { background: linear-gradient(135deg, #059669, #047857); }
+        .api-section { margin-top: 40px; }
+        .api-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 12px;
+        }
+        .api-card {
+            background: #12161f;
+            border: 1px solid #1e2330;
+            border-radius: 8px;
+            padding: 16px;
+            font-family: monospace;
+            font-size: 13px;
+        }
+        .api-card .method { color: #4ade80; font-weight: bold; }
+        .api-card .path { color: #60a5fa; }
+        .api-card .desc { color: #666; font-size: 11px; margin-top: 4px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Trading Dashboard Hub</h1>
+        <p>XAU/USD | AUD/USD | Deriv Synthetic Indices | Backtesting | Live Signals | Bots</p>
+    </div>
+
+    <div class="container">
+
+        <div class="section-title">Live Dashboards</div>
+        <div class="grid">
+            <a href="/deriv" class="card deriv">
+                <div class="card-header">
+                    <div class="card-icon">V</div>
+                    <h3>Deriv Live Dashboard</h3>
+                </div>
+                <p>Real-time candlestick charts with RSI + MACD signals. 15-pair scanner. Multi-timeframe analysis.</p>
+                <div class="card-stats">
+                    <div class="stat">Pairs: <span>15</span></div>
+                    <div class="stat">Indicators: <span>RSI + MACD</span></div>
+                    <div class="stat">Live: <span>WebSocket</span></div>
+                </div>
+            </a>
+
+            <a href="/deriv/signals" class="card deriv">
+                <div class="card-header">
+                    <div class="card-icon">S</div>
+                    <h3>Deriv Signals Dashboard</h3>
+                </div>
+                <p>Multi-pair RSI signals with SMA trend filter. 1-hour timeframe. Auto-updating signal cards.</p>
+                <div class="card-stats">
+                    <div class="stat">Strategy: <span>RSI + SMA</span></div>
+                    <div class="stat">TF: <span>1H</span></div>
+                </div>
+            </a>
+
+            <a href="/deriv/rsi" class="card deriv">
+                <div class="card-header">
+                    <div class="card-icon">R</div>
+                    <h3>Deriv RSI Strategy</h3>
+                </div>
+                <p>Backtested optimal RSI settings per index. Shows win rate, profit factor, Sharpe ratio for each pair.</p>
+                <div class="card-stats">
+                    <div class="stat">Symbols: <span>10</span></div>
+                    <div class="stat">Backtested: <span>Yes</span></div>
+                </div>
+            </a>
+
+            <a href="/deriv/price-action" class="card deriv">
+                <div class="card-header">
+                    <div class="card-icon">P</div>
+                    <h3>Price Action Analysis</h3>
+                </div>
+                <p>Comprehensive analysis: RSI + MACD + Support/Resistance + candlestick patterns. Weighted scoring system.</p>
+                <div class="card-stats">
+                    <div class="stat">Patterns: <span>HH/HL/LL</span></div>
+                    <div class="stat">Score: <span>0-100</span></div>
+                </div>
+            </a>
+        </div>
+
+        <div class="section-title">Backtesting</div>
+        <div class="grid">
+            <a href="/gold" class="card gold">
+                <div class="card-header">
+                    <div class="card-icon">Au</div>
+                    <h3>XAU/USD Gold Backtest</h3>
+                </div>
+                <p>8 strategies backtested on Gold. Optimized Trend strategy: 87% win rate, PF 2.33.</p>
+                <div class="card-stats">
+                    <div class="stat">Best WR: <span>87.4%</span></div>
+                    <div class="stat">PF: <span>2.33</span></div>
+                    <div class="stat">Strategies: <span>8</span></div>
+                </div>
+            </a>
+
+            <a href="/api/backtest/audusd" class="card forex">
+                <div class="card-header">
+                    <div class="card-icon">A$</div>
+                    <h3>AUD/USD Backtest</h3>
+                </div>
+                <p>RSI(30/65) strategy: 90% win rate, PF 5.41, +1,856 pips over 5 years. Best forex strategy found.</p>
+                <div class="card-stats">
+                    <div class="stat">Best WR: <span>90.0%</span></div>
+                    <div class="stat">PF: <span>5.41</span></div>
+                    <div class="stat">Pips: <span>+1,856</span></div>
+                </div>
+            </a>
+
+            <a href="/api/backtest/deriv?symbol=R_75" class="card deriv">
+                <div class="card-header">
+                    <div class="card-icon">D</div>
+                    <h3>Deriv Indices Backtest</h3>
+                </div>
+                <p>5 synthetic indices optimized. R_75 EMA(5/21): +89.4% return. R_100 RSI(25/70): 84.2% WR.</p>
+                <div class="card-stats">
+                    <div class="stat">Best Return: <span>+89.4%</span></div>
+                    <div class="stat">Best WR: <span>84.2%</span></div>
+                    <div class="stat">Instruments: <span>5</span></div>
+                </div>
+            </a>
+        </div>
+
+        <div class="section-title">Best Strategies (Optimized)</div>
+        <div class="grid">
+            <div class="card gold" style="cursor:default">
+                <h3 style="margin-bottom:12px">XAU/USD - Optimized Trend</h3>
+                <p>EMA(50) + ADX(>20) + RSI(35-75) | SL: 3.0x ATR | TP: 0.75x ATR</p>
+                <div class="card-stats">
+                    <div class="stat">WR: <span>87.4%</span></div>
+                    <div class="stat">PF: <span>2.33</span></div>
+                    <div class="stat">119 trades</div>
+                </div>
+            </div>
+            <div class="card forex" style="cursor:default">
+                <h3 style="margin-bottom:12px">AUD/USD - RSI(30/65)</h3>
+                <p>Buy RSI cross above 30 | Sell RSI cross below 65 | SL: 2.5x ATR | TP: 1.0x ATR</p>
+                <div class="card-stats">
+                    <div class="stat">WR: <span>90.0%</span></div>
+                    <div class="stat">PF: <span>5.41</span></div>
+                    <div class="stat">+1,856 pips</div>
+                </div>
+            </div>
+            <div class="card deriv" style="cursor:default">
+                <h3 style="margin-bottom:12px">R_75 - EMA(5/21) Crossover</h3>
+                <p>EMA(5) crosses EMA(21) | SL: 3.0x ATR | TP: 1.5x ATR | 1H timeframe</p>
+                <div class="card-stats">
+                    <div class="stat">WR: <span>73.4%</span></div>
+                    <div class="stat">Return: <span>+89.4%</span></div>
+                    <div class="stat">248 trades</div>
+                </div>
+            </div>
+            <div class="card deriv" style="cursor:default">
+                <h3 style="margin-bottom:12px">R_100 - RSI(25/70)</h3>
+                <p>Buy RSI cross above 25 | Sell RSI cross below 70 | SL: 3.0x ATR | TP: 1.0x ATR</p>
+                <div class="card-stats">
+                    <div class="stat">WR: <span>84.2%</span></div>
+                    <div class="stat">Return: <span>+60.6%</span></div>
+                    <div class="stat warn">DD: <span>11.4%</span></div>
+                </div>
+            </div>
+            <div class="card deriv" style="cursor:default">
+                <h3 style="margin-bottom:12px">V100 1s - RSI(25/75)</h3>
+                <p>RSI mean reversion | SL: 3.0x ATR | TP: 2.0x ATR | Highest expectancy</p>
+                <div class="card-stats">
+                    <div class="stat">WR: <span>67.7%</span></div>
+                    <div class="stat">Return: <span>+44.4%</span></div>
+                    <div class="stat">Exp: <span>0.68%/trade</span></div>
+                </div>
+            </div>
+            <div class="card deriv" style="cursor:default">
+                <h3 style="margin-bottom:12px">Step Index - RSI(30/75)</h3>
+                <p>Safest strategy | SL: 2.0x ATR | TP: 0.75x ATR | Tiny moves</p>
+                <div class="card-stats">
+                    <div class="stat">WR: <span>83.7%</span></div>
+                    <div class="stat">PF: <span>1.97</span></div>
+                    <div class="stat warn">DD: <span>0.6%</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-title api-section">API Endpoints</div>
+        <div class="api-grid">
+            <div class="api-card">
+                <span class="method">GET</span> <span class="path">/api/backtest</span>
+                <div class="desc">XAU/USD backtest (8 strategies)</div>
+            </div>
+            <div class="api-card">
+                <span class="method">GET</span> <span class="path">/api/backtest/audusd</span>
+                <div class="desc">AUD/USD backtest (8 strategies)</div>
+            </div>
+            <div class="api-card">
+                <span class="method">GET</span> <span class="path">/api/backtest/deriv?symbol=R_75</span>
+                <div class="desc">Deriv synthetic index backtest</div>
+            </div>
+            <div class="api-card">
+                <span class="method">GET</span> <span class="path">/api/strategies</span>
+                <div class="desc">All best strategies summary</div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>
